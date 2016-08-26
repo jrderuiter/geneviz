@@ -1,0 +1,41 @@
+package:
+    name: geneviz
+    version: 0.0.1
+
+source:
+    # fn:
+    # md5:
+    # url:
+    path: ../
+
+build:
+    number: 0
+    skip: False
+
+requirements:
+    build:
+        - future ==0.15.2
+        - pandas ==0.18.1
+        - matplotlib ==1.5.1
+        - pysam ==0.9.1
+        - toolz ==0.8.0
+        - intervaltree ==2.1.0
+        - seaborn ==0.7.1
+
+    run:
+        - future ==0.15.2
+        - pandas ==0.18.1
+        - matplotlib ==1.5.1
+        - pysam ==0.9.1
+        - toolz ==0.8.0
+        - intervaltree ==2.1.0
+        - seaborn ==0.7.1
+
+test:
+    imports:
+        - geneviz
+
+about:
+    home: https://github.com/jrderuiter/geneviz
+    license: MIT
+    summary: "Python library for creating visualizations of genomic data."
