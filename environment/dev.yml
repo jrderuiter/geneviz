@@ -1,0 +1,34 @@
+name: geneviz-dev
+channels:
+    - conda-forge
+    - bioconda
+    - jrderuiter
+dependencies:
+    - pip ==8.1.2
+
+    # Basic dependencies
+    - future ==0.15.2
+    - pandas ==0.18.1
+    - matplotlib ==1.5.1
+    - pysam ==0.9.1
+    - toolz ==0.8.0
+    - intervaltree ==2.1.0
+    - seaborn ==0.7.1
+
+    # Notebook
+    - jupyter ==1.0.0
+    - notebook ==4.2.2
+
+    # Development
+    - wheel ==0.29.0
+    - coverage ==4.1
+    - sphinx ==1.4.1
+    - pytest ==2.9.2
+    - flake8 ==3.0.4
+    - pip:
+        # Basic dependencies
+        - pybiomart ==0.0.1
+
+        # Development
+        - bumpversion ==0.5.3
+        - watchdog ==0.8.3
