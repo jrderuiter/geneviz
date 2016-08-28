@@ -19,7 +19,7 @@ test_requirements = [
 
 setup(
     name='geneviz',
-    version='0.0.1',
+    version='0.1.0.dev0',
     description="Python library for creating visualizations of genomic data.",
     long_description=readme + '\n\n' + history,
     author="Julian de Ruiter",
