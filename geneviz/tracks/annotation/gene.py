@@ -13,9 +13,8 @@ following tracks:
 from __future__ import absolute_import, division, print_function
 
 #pylint: disable=W0622,W0611
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      int, map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (ascii, bytes, chr, dict, filter, hex, input, int, map,
+                      next, oct, open, pow, range, round, str, super, zip)
 
 import itertools
 
@@ -65,14 +64,17 @@ class Gene(Actor):
 
     """
 
-    _default_plot_kws = {
-        'edgecolor': 'black',
-        'lw': 1
-    }
+    _default_plot_kws = {'edgecolor': 'black', 'lw': 1}
 
     #pylint: disable=too-many-arguments
-    def __init__(self, seqname, start, end, strand, name=None,
-                 height=1, **kwargs):
+    def __init__(self,
+                 seqname,
+                 start,
+                 end,
+                 strand,
+                 name=None,
+                 height=1,
+                 **kwargs):
         super().__init__(seqname=seqname, start=start, end=end)
 
         self.strand = strand
@@ -99,9 +101,11 @@ class Gene(Actor):
         return BoundingBox(start, self.end, self._height, self)
 
     def draw(self, ax, y=0):
-        patch = Rectangle(xy=(self.start, y),
-                          width=self.end - self.start,
-                          height=self._height, **self._plot_kws)
+        patch = Rectangle(
+            xy=(self.start, y),
+            width=self.end - self.start,
+            height=self._height,
+            **self._plot_kws)
         ax.add_patch(patch)
 
         self._draw_label(ax, y=y)
@@ -117,11 +121,15 @@ class Gene(Actor):
 
         # Draw and return label.
         return ax.annotate(
-            xy=(anchor, y + (0.5 * self._height)), xycoords='data',
-            xytext=(-5, 0), textcoords='offset points',
-            s=self.name, fontsize=12,
+            xy=(anchor, y + (0.5 * self._height)),
+            xycoords='data',
+            xytext=(-5, 0),
+            textcoords='offset points',
+            s=self.name,
+            fontsize=12,
             horizontalalignment='right',
-            verticalalignment='center', clip_on=True)
+            verticalalignment='center',
+            clip_on=True)
 
 
 class Transcript(Actor):
@@ -143,13 +151,14 @@ class Transcript(Actor):
 
     """
 
-    _default_plot_kws = {
-        'edgecolor': 'black',
-        'lw': 1
-    }
+    _default_plot_kws = {'edgecolor': 'black', 'lw': 1}
 
-    def __init__(self, features, name=None, height=1,
-                 arrow_spacing=30, arrow_size=150,
+    def __init__(self,
+                 features,
+                 name=None,
+                 height=1,
+                 arrow_spacing=30,
+                 arrow_size=150,
                  **kwargs):
 
         seqname = features['seqname'].iloc[0]
@@ -197,8 +206,8 @@ class Transcript(Actor):
     def _draw_exons(self, ax, y):
         exons = self._features.query('feature == "exon"')
 
-        patches = (Rectangle(xy=(f.start, y), width=f.end - f.start,
-                             height=self._height)
+        patches = (Rectangle(
+            xy=(f.start, y), width=f.end - f.start, height=self._height)
                    for f in exons.itertuples())
         collection = PatchCollection(patches, **self._plot_kws)
 
@@ -207,16 +216,15 @@ class Transcript(Actor):
     def _draw_junctions(self, ax, y):
         # Get junction ranges.
         exons = (self._features.query('feature == "exon"')
-                               .sort_values(by='start'))
+                 .sort_values(by='start'))
 
-        ranges = list(zip(exons['end'].iloc[:-1],
-                          exons['start'].iloc[1:]))
+        ranges = list(zip(exons['end'].iloc[:-1], exons['start'].iloc[1:]))
 
         # Draw lines.
         y_line = y + (0.5 * self._height)
         segments = [((start, y_line), (end, y_line)) for start, end in ranges]
         lines = mpl_coll.LineCollection(segments, **self._plot_kws)
-            #segments, colors=('grey', ), linewidths=3)
+        #segments, colors=('grey', ), linewidths=3)
         ax.add_collection(lines)
 
         # Draw arrows.
@@ -232,11 +240,15 @@ class Transcript(Actor):
             offsets += list(zip(positions, itertools.cycle([height])))
 
         arrows = mpl_coll.RegularPolyCollection(
-            numsides=3, rotation=np.pi / 2, sizes=(self._arrow_size,),
-            offsets=offsets, transOffset=ax.transData,
-            zorder=5, **self._plot_kws)
-#            facecolors=('grey',),
-#            edgecolors=('grey',), zorder=5)
+            numsides=3,
+            rotation=np.pi / 2,
+            sizes=(self._arrow_size, ),
+            offsets=offsets,
+            transOffset=ax.transData,
+            zorder=5,
+            **self._plot_kws)
+        #            facecolors=('grey',),
+        #            edgecolors=('grey',), zorder=5)
         ax.add_collection(arrows)
 
     def _get_arrow_spacing(self, ax):
@@ -256,11 +268,15 @@ class Transcript(Actor):
 
         # Draw and return label.
         return ax.annotate(
-            xy=(anchor, y + (0.5 * self._height)), xycoords='data',
-            xytext=(-5, 0), textcoords='offset points',
-            s=self.name, fontsize=12,
+            xy=(anchor, y + (0.5 * self._height)),
+            xycoords='data',
+            xytext=(-5, 0),
+            textcoords='offset points',
+            s=self.name,
+            fontsize=12,
             horizontalalignment='right',
-            verticalalignment='center', clip_on=True)
+            verticalalignment='center',
+            clip_on=True)
 
 
 class BaseGeneTrack(Track):
@@ -273,7 +289,7 @@ class BaseGeneTrack(Track):
         gtf (GtfFile or GtfFrame): Gtf file/frame containing the
             gene and/or transcript annotations.
         filters (dict): Dict of filters that are passed to the
-            get_region method of the GtfFile/Frame object when
+            fetch_frame method of the GtfFile/Frame object when
             querying for genes/transripts in a given region.
         collapse (bool): Whether to collapse transcripts per gene.
         transcript_kws: Keywords that define the aesthetics
@@ -288,9 +304,15 @@ class BaseGeneTrack(Track):
     # TODO: Fix case where plot_kws contains facecolor (currently
     # conflicts with the hue implementation).
 
-    def __init__(self, hue=None, palette=None, collapse=None,
-                 filter=None, stack_kws=None, gene_id='gene_name',
-                 transcript_id='transcript_name', **kwargs):
+    def __init__(self,
+                 hue=None,
+                 palette=None,
+                 collapse=None,
+                 filter=None,
+                 stack_kws=None,
+                 gene_id='gene_name',
+                 transcript_id='transcript_name',
+                 **kwargs):
         super().__init__()
 
         self._hue = hue
@@ -353,9 +375,7 @@ class BaseGeneTrack(Track):
     def _convert_to_features(self, data):
         # Collapse transcripts if needed.
         if self._collapse == 'gene':
-            groups = (data
-                      .dropna(subset=['gene_id'])
-                      .groupby('gene_id'))
+            groups = (data.dropna(subset=['gene_id']).groupby('gene_id'))
 
             features = [self._data_to_gene(grp) for _, grp in groups]
         else:
@@ -364,12 +384,10 @@ class BaseGeneTrack(Track):
 
             # Create list of transcripts.
             if len(data) > 0:
-                groups = (data
-                          .dropna(subset=['transcript_id'])
+                groups = (data.dropna(subset=['transcript_id'])
                           .groupby('transcript_id'))
 
-                features = [self._data_to_transcript(grp)
-                            for _, grp in groups]
+                features = [self._data_to_transcript(grp) for _, grp in groups]
             else:
                 features = []
 
@@ -377,21 +395,22 @@ class BaseGeneTrack(Track):
 
     def _data_to_gene(self, grp):
         first = grp.iloc[0]
-        return Gene(seqname=first.seqname,
-                    start=grp['start'].min(),
-                    end=grp['end'].max(),
-                    strand=first.strand,
-                    name=first.gene_id,
-                    facecolor=first.color,
-                    **self._plot_kws)
+        return Gene(
+            seqname=first.seqname,
+            start=grp['start'].min(),
+            end=grp['end'].max(),
+            strand=first.strand,
+            name=first.gene_id,
+            facecolor=first.color,
+            **self._plot_kws)
 
     def _data_to_transcript(self, grp):
         first = grp.iloc[0]
-        return Transcript(grp,
-                          name=first.transcript_id,
-                          facecolor=first.color,
-                          **self._plot_kws)
-
+        return Transcript(
+            grp,
+            name=first.transcript_id,
+            facecolor=first.color,
+            **self._plot_kws)
 
     def _collapse_transcripts(self, data):
         # TODO: handle empty case.
@@ -414,16 +433,13 @@ class BaseGeneTrack(Track):
             # And build a new frame, using the first row as reference.
             first = data.iloc[0]
 
-            collapsed = (pd.DataFrame([first] * len(start))
-                         .assign(start=start,
-                                 end=end,
-                                 transcript_id=first.gene_id))
+            collapsed = (pd.DataFrame([first] * len(start)).assign(
+                start=start, end=end, transcript_id=first.gene_id))
 
         return collapsed
 
 
 class GeneTrack(BaseGeneTrack):
-
     def __init__(self, data, **kwargs):
         super().__init__(**kwargs)
         self._data = data
@@ -451,7 +467,6 @@ class GeneTrack(BaseGeneTrack):
 
 
 class GtfTrack(BaseGeneTrack):
-
     def __init__(self, gtf, **kwargs):
         super().__init__(**kwargs)
         self._gtf = gtf
@@ -462,7 +477,7 @@ class GtfTrack(BaseGeneTrack):
 
     def _fetch_data(self, seqname, start, end):
         # Perform initial query.
-        data = self._gtf.get_region(seqname, start, end)
+        data = self._gtf.fetch_frame(seqname, start, end)
 
         # Check if we have any features extending beyond range.
         min_ = data['start'].min()
@@ -476,8 +491,8 @@ class GtfTrack(BaseGeneTrack):
             # new features to the original transcripts.
             transcripts = set(data[self._transcript_id])
 
-            data = self._gtf.get_region(data, seqname,
-                                        min(min_, start), max(max_, end))
+            data = self._gtf.fetch_frame(data, seqname, min(min_, start),
+                                         max(max_, end))
 
             data = data.ix[data[self._transcript_id].isin(transcripts)]
 
@@ -487,7 +502,6 @@ class GtfTrack(BaseGeneTrack):
                 .assign(strand=lambda df: df['strand'].map({'+': 1, '-': -1})))
 
         return data
-
 
 
 class BiomartTrack(BaseGeneTrack):
@@ -506,9 +520,11 @@ class BiomartTrack(BaseGeneTrack):
 
     """
 
-    def __init__(self, host='http://www.ensembl.org',
+    def __init__(self,
+                 host='http://www.ensembl.org',
                  mart='ENSEMBL_MART_ENSEMBL',
-                 dataset='hsapiens_gene_ensembl', **kwargs):
+                 dataset='hsapiens_gene_ensembl',
+                 **kwargs):
         super().__init__(**kwargs)
 
         if pybiomart is None:
@@ -517,8 +533,7 @@ class BiomartTrack(BaseGeneTrack):
 
         # Fetch dataset from server.
         server = pybiomart.Server(host=host)
-        self._dataset = (server.marts[mart]
-                         .datasets[dataset])
+        self._dataset = (server.marts[mart].datasets[dataset])
 
     def _fetch_data(self, seqname, start, end):
         # TODO: Fetch transcript name instead of id (needs extra query).
@@ -533,11 +548,8 @@ class BiomartTrack(BaseGeneTrack):
         transcript_ids = list(transcripts[transcripts.columns[0]])
 
         # Retrieve exons for these transcripts.
-        attrs = ['external_gene_name',
-                 'ensembl_gene_id',
-                 'ensembl_transcript_id',
-                 'exon_chrom_start',
-                 'exon_chrom_end',
+        attrs = ['external_gene_name', 'ensembl_gene_id',
+                 'ensembl_transcript_id', 'exon_chrom_start', 'exon_chrom_end',
                  'strand']
 
         filters = {'link_ensembl_transcript_stable_id': transcript_ids}
@@ -554,6 +566,7 @@ class BiomartTrack(BaseGeneTrack):
             'feature': 'exon',
             'gene_name': data['external_gene_name'],
             'gene_id': data['ensembl_gene_id'],
-            'transcript_name': data['ensembl_transcript_id']})
+            'transcript_name': data['ensembl_transcript_id']
+        })
 
         return data

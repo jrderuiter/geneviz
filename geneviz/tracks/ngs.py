@@ -1,18 +1,16 @@
 from __future__ import absolute_import, division, print_function
 
 #pylint: disable=W0622,W0611
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      int, map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (ascii, bytes, chr, dict, filter, hex, input, int, map,
+                      next, oct, open, pow, range, round, str, super, zip)
 from future.utils import native_str
 
 import numpy as np
 import pysam
 import toolz
 
-from matplotlib import (path as mpath,
-                        collections as mcollections,
-                        patches as mpatches)
+from matplotlib import (path as mpath, collections as mcollections, patches as
+                        mpatches)
 
 from geneviz.tabix import BedFile
 from geneviz.tracks import Track
@@ -28,12 +26,11 @@ class SpliceTrack(Track):
         self._kws = toolz.merge(self._default_kws, kwargs)
 
     def draw(self, ax, seqname, start, end):
-        splices = self._bed.get_region(seqname, start, end)
+        splices = self._bed.fetch_frame(seqname, start, end)
 
         arcs = (self._splice_arc(start, end, score)
-                for start, end, score in
-                zip(splices['chromStart'], splices['chromEnd'],
-                    splices['score']))
+                for start, end, score in zip(splices['chromStart'], splices[
+                    'chromEnd'], splices['score']))
         patches = mcollections.PatchCollection(arcs, **self._kws)
 
         ax.add_collection(patches)
@@ -43,12 +40,10 @@ class SpliceTrack(Track):
     @staticmethod
     def _splice_arc(start, end, height):
         bezier_height = height / 0.75
-        vertices = [(start, 0.), (start, bezier_height),
-                    (end, bezier_height), (end, 0)]
+        vertices = [(start, 0.), (start, bezier_height), (end, bezier_height),
+                    (end, 0)]
 
-        codes = [mpath.Path.MOVETO,
-                 mpath.Path.CURVE4,
-                 mpath.Path.CURVE4,
+        codes = [mpath.Path.MOVETO, mpath.Path.CURVE4, mpath.Path.CURVE4,
                  mpath.Path.CURVE4]
 
         path = mpath.Path(vertices, codes)
@@ -58,9 +53,12 @@ class SpliceTrack(Track):
 
 
 class CoverageTrack(Track):
-
-    def __init__(self, bam_path, height=1, fill=True,
-                 stepper='all', plot_kwargs=None):
+    def __init__(self,
+                 bam_path,
+                 height=1,
+                 fill=True,
+                 stepper='all',
+                 plot_kwargs=None):
         super().__init__(height=height)
 
         # Bam file parameters.
@@ -72,7 +70,7 @@ class CoverageTrack(Track):
         self._fill = fill
         self._plot_kwargs = {} if plot_kwargs is None else plot_kwargs
 
-    def get_height(self,  ax, seqname, start, end):
+    def get_height(self, ax, seqname, start, end):
         return self._height
 
     def _get_coverage(self, seqname, start, end):
@@ -82,8 +80,11 @@ class CoverageTrack(Track):
             # Truncate = True truncates pileups at start-end
             # positions, avoids looking outside range.
             pileups = file_.pileup(
-                reference=seqname, start=start,
-                end=end, stepper=self._stepper, truncate=True)
+                reference=seqname,
+                start=start,
+                end=end,
+                stepper=self._stepper,
+                truncate=True)
 
             for pileup in pileups:
                 # Count reads at each position.

@@ -11,79 +11,6 @@ from .base import Actor, StackedTrack, BoundingBox
 from .. import Track
 
 
-class FeatureTrack(Track):
-    """Track for plotting generic genomic features.
-
-    FeatureTrack draws a list of features on a given track axis,
-    using the StackedTrack to stack overlapping features. The main
-    utility of the class lises in the `from_frame` class method,
-    which constructs a feature track directly from a dataframe.
-
-    Args:
-        data (pandas.Dataframe): DataFrame containing the features to
-            draw. Should have the following columns: seqname, start,
-            end, strand. Each row is taken as a separate feature.
-
-    """
-
-    # seqname, start, end, strand=None, label=None,
-    # arrow_kws=None, rect_kws=None, **kwargs)
-
-    def __init__(self, data, label=None, hue=None,
-                 palette=None, stack_kws=None, height=1):
-        super().__init__()
-
-        palette = palette or sns.color_palette()
-
-        self._data = self._preprocess_data(
-            data, label=label, hue=hue, palette=palette)
-        self._stack_kws = stack_kws or {}
-
-        self._height = height
-
-    def _preprocess_data(self, data, label, hue, palette):
-        plot_data = data[['seqname', 'start', 'end', 'strand']].copy()
-
-        if hue is not None:
-            if not isinstance(palette, dict):
-                palette = dict(zip(data[hue].unique(),
-                                   itertools.cycle(palette)))
-            plot_data['color'] = data[hue].map(palette)
-        else:
-            plot_data['color'] = None
-
-        if label is not None:
-            plot_data['label'] = data[label]
-        else:
-            plot_data['label'] = None
-
-        return plot_data
-
-    def draw(self, ax, seqname, start, end):
-        features = self._get_features(seqname, start, end)
-        track = StackedTrack(features, **self._stack_kws)
-        return track.draw(ax, seqname, start, end)
-
-    def get_height(self, ax, seqname, start, end):
-        features = self._get_features(seqname, start, end)
-        track = StackedTrack(features, **self._stack_kws)
-        return track.get_height(ax, seqname, start, end)
-
-    def _get_features(self, seqname, start, end):
-        sel_data = self._data.query(('seqname == {!r} and '
-                                     'end >= {} and start <= {}')
-                                    .format(seqname, start, end))
-
-        sel_features = (Feature(seqname=t.seqname, start=t.start,
-                                end=t.end, strand=t.strand,
-                                facecolor=t.color, label=t.label,
-                                height=self._height)
-                        for t in sel_data.itertuples())
-
-        for feat in sel_features:
-            yield feat
-
-
 class Feature(Actor):
     """Actor that represents a generic (single) genomic feature.
 
@@ -111,13 +38,16 @@ class Feature(Actor):
 
     """
 
-    _default_plot_kws = {
-        'edgecolor': 'black',
-        'lw': 1
-    }
+    _default_plot_kws = {'edgecolor': 'black', 'lw': 1}
 
-    def __init__(self, seqname, start, end, strand=None, name=None,
-                 height=1, **kwargs):
+    def __init__(self,
+                 seqname,
+                 start,
+                 end,
+                 strand=None,
+                 name=None,
+                 height=1,
+                 **kwargs):
         super().__init__(seqname=seqname, start=start, end=end)
 
         self.strand = strand
@@ -125,18 +55,6 @@ class Feature(Actor):
 
         self._height = height
         self._plot_kws = toolz.merge(self._default_plot_kws, kwargs)
-
-        # Default shape kwargs.
-        #default_arrow_kws = dict(
-        #    head_width=0.9,
-        #    head_length=abs(start - end) * 0.5,
-        #    width=0.5,
-        #    length_includes_head=True)
-
-        #default_rect_kws = {}
-        #self._arrow_kws = toolz.merge(default_arrow_kws, arrow_kws or {})
-        #self._rect_kws = toolz.merge(default_rect_kws, rect_kws or {})
-        #self._shared_kws = kwargs
 
     def get_height(self):
         return self._height
@@ -160,8 +78,10 @@ class Feature(Actor):
             # Draw rectangle.
             # height = self._rect_kws['height']
             patch = mpl_patches.Rectangle(
-                xy=(self.start, y), width=self.end - self.start,
-                height=self._height, **self._plot_kws)
+                xy=(self.start, y),
+                width=self.end - self.start,
+                height=self._height,
+                **self._plot_kws)
         else:
             # Draw directed arrow.
             if self.strand == 1:
@@ -176,8 +96,11 @@ class Feature(Actor):
                 length_includes_head=True)
 
             patch = mpl_patches.FancyArrow(
-                x=x, dx=dx, y=y + (0.5 * self._height),
-                dy=0, **toolz.merge(arrow_kws, self._plot_kws))
+                x=x,
+                dx=dx,
+                y=y + (0.5 * self._height),
+                dy=0,
+                **toolz.merge(arrow_kws, self._plot_kws))
 
         ax.add_patch(patch)
 
@@ -186,8 +109,94 @@ class Feature(Actor):
 
     def _draw_label(self, ax, y=1):
         return ax.annotate(
-            xy=(self.start, y + (0.5 * self.height)), xycoords='data',
-            xytext=(-5, 0), textcoords='offset points',
-            s=self.name, fontsize=16,
+            xy=(self.start, y + (0.5 * self._height)),
+            xycoords='data',
+            xytext=(-5, 0),
+            textcoords='offset points',
+            s=self.name,
+            fontsize=16,
             horizontalalignment='right',
-            verticalalignment='center', clip_on=True)
+            verticalalignment='center',
+            clip_on=True)
+
+
+class FeatureTrack(Track):
+    """Track for plotting generic genomic features.
+
+    FeatureTrack draws a list of features on a given track axis,
+    using the StackedTrack to stack overlapping features. The main
+    utility of the class lises in the `from_frame` class method,
+    which constructs a feature track directly from a dataframe.
+
+    Args:
+        data (pandas.Dataframe): DataFrame containing the features to
+            draw. Should have the following columns: seqname, start,
+            end, strand. Each row is taken as a separate feature.
+
+    """
+
+    # seqname, start, end, strand=None, label=None,
+    # arrow_kws=None, rect_kws=None, **kwargs)
+
+    def __init__(self,
+                 data,
+                 name=None,
+                 hue=None,
+                 palette=None,
+                 stack_kws=None,
+                 height=1):
+        super().__init__()
+
+        palette = palette or sns.color_palette()
+
+        self._data = self._preprocess_data(
+            data, name=name, hue=hue, palette=palette)
+        self._stack_kws = stack_kws or {}
+
+        self._height = height
+
+    def _preprocess_data(self, data, name, hue, palette):
+        plot_data = data[['seqname', 'start', 'end', 'strand']].copy()
+
+        if hue is not None:
+            if not isinstance(palette, dict):
+                palette = dict(
+                    zip(data[hue].unique(), itertools.cycle(palette)))
+            plot_data['color'] = data[hue].map(palette)
+        else:
+            plot_data['color'] = None
+
+        if name is not None:
+            plot_data['name'] = data[name]
+        else:
+            plot_data['name'] = None
+
+        return plot_data
+
+    def draw(self, ax, seqname, start, end):
+        features = self._get_features(seqname, start, end)
+        track = StackedTrack(features, **self._stack_kws)
+        return track.draw(ax, seqname, start, end)
+
+    def get_height(self, ax, seqname, start, end):
+        features = self._get_features(seqname, start, end)
+        track = StackedTrack(features, **self._stack_kws)
+        return track.get_height(ax, seqname, start, end)
+
+    def _get_features(self, seqname, start, end):
+        sel_data = self._data.query(('seqname == {!r} and '
+                                     'end >= {} and start <= {}')
+                                    .format(seqname, start, end))
+
+        for tup in sel_data.itertuples():
+            yield self._feature_from_row(tup)
+
+    def _feature_from_row(self, row):
+        return Feature(
+            seqname=row.seqname,
+            start=row.start,
+            end=row.end,
+            strand=row.strand,
+            facecolor=row.color,
+            name=row.name,
+            height=self._height)
