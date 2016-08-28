@@ -61,3 +61,5 @@ target/
 # User-defined
 .DS_Store
 /.vscode
+_pybiomart_cache.sqlite
+.ipynb_checkpoints
