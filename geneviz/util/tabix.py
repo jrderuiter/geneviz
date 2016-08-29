@@ -15,65 +15,6 @@ import numpy as np
 import pandas as pd
 
 
-class TabixIterator(object):
-    def __init__(self, file_path, parser=None):
-        self._file_path = file_path
-        self._parser = parser
-
-    def fetch(self,
-              reference=None,
-              start=None,
-              end=None,
-              filters=None,
-              incl_left=True,
-              incl_right=True):
-        file_obj = pysam.TabixFile(
-            native_str(self._file_path), parser=self._parser)
-
-        with contextlib.closing(file_obj) as tb_file:
-            if reference is not None:
-                reference = native_str(reference)
-
-            records = self._fetch(
-                tb_file, reference=reference, start=start, end=end)
-
-            # Filter records on additional filters.
-            if filters is not None:
-
-                def _filter(records, name, value):
-                    for r in records:
-                        if hasattr(r, name) and getattr(r, name) == value:
-                            yield r
-
-                for name, value in filters.items():
-                    records = _filter(records, name, value)
-
-            # Filter inclusive/exclusive if needed.
-            if not incl_left:
-                records = filter(lambda r: r.start > start, records)
-
-            if not incl_right:
-                records = filter(lambda r: r.end < end, records)
-
-            # Yield records.
-            for record in records:
-                yield record
-
-    def _fetch(self, tb_file, reference=None, **kwargs):
-        # For some reason pysam does not fetch all records if reference
-        # is None under Python 2.7. To fix this, here we simply chain all
-        # the contig records into one iterable.
-        if reference is None:
-            contigs = tb_file.contigs
-            records = itertools.chain.from_iterable((tb_file.fetch(
-                reference=ref, **kwargs) for ref in contigs))
-        else:
-            records = tb_file.fetch(reference=reference, **kwargs)
-
-        for record in records:
-            yield record
-
-
 class TabixFile(object):
     def __init__(self, filename, parser, **kwargs):
         self._filename = filename

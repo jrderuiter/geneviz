@@ -25,16 +25,8 @@ class Feature(Actor):
         end (int): End position of feature.
         strand (int, optional): Strand of feature, should either be
             1 if feature is on forward strand, or -1 for the reverse strand.
-        label (str, optional): Label of the feature.
-        arrow_kws (dict): Keywords specifying how the arrow should be drawn
-            for a directed feature. Keywords are passed directly to
-            matplotlibs FancyArrow constructor.
-        rect_kws (dict): Keywords specifying how the rectangle should be
-            drawn of an undirected feature. Keywords are passed directly
-            to matplotlibs Rectangle constructor.
-        shared_kws (dict): Keywords specifying how features should be
-            drawn, but that are not specific to directed/undirected features.
-            Examples are feature colors, etc.
+        name (str, optional): Label of the feature.
+        height (int): Height of the feature.
 
     """
 
@@ -118,6 +110,12 @@ class Feature(Actor):
             horizontalalignment='right',
             verticalalignment='center',
             clip_on=True)
+
+    def __repr__(self):
+        fmt_str = ('Feature(seqname={!r}, start={!r}, end={!r}, strand={!r},'
+                   ' name={!r}, height={!r})')
+        return fmt_str.format(self.seqname, self.start, self.end,
+                              self.strand, self.name, self._height)
 
 
 class FeatureTrack(Track):

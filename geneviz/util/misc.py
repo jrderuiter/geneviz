@@ -46,6 +46,6 @@ def merge_intervals(intervals):
 
 
 def get_region(data, seqname, start, end):
-    """Returns region from data frame."""
+    """Returns region from data frame with seqname, start and end columns."""
     return data.query('seqname == {!r} and end >= {} and start <= {}'
                       .format(seqname, start, end))

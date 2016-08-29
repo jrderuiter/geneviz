@@ -28,7 +28,6 @@ help:
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-
 clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
@@ -53,11 +52,8 @@ test: ## run tests quickly with the default Python
 	py.test
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source geneviz py.test
-
-		coverage report -m
-		coverage html
-		$(BROWSER) htmlcov/index.html
+	py.test --cov=geneviz --cov-report=html
+	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/geneviz.rst
@@ -78,6 +74,9 @@ dist: clean ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist
+
+conda-build: clean-pyc ## build a conda release
+	conda build ./conda -c bioconda -c jrderuiter
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
