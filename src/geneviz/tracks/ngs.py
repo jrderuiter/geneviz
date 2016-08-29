@@ -12,8 +12,8 @@ import toolz
 from matplotlib import (path as mpath, collections as mcollections, patches as
                         mpatches)
 
-from geneviz.tabix import BedFile
 from geneviz.tracks import Track
+from geneviz.util.tabix import BedFile
 
 
 class SpliceTrack(Track):

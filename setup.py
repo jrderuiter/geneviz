@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -10,7 +10,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    'future', 'pandas', 'matplotlib', 'pysam', 'toolz', 'intervaltree',
+    'seaborn'
 ]
 
 test_requirements = [
@@ -25,11 +26,8 @@ setup(
     author="Julian de Ruiter",
     author_email='julianderuiter@gmail.com',
     url='https://github.com/jrderuiter/geneviz',
-    packages=[
-        'geneviz',
-    ],
-    package_dir={'geneviz':
-                 'geneviz'},
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",
@@ -49,5 +47,4 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     test_suite='tests',
-    tests_require=test_requirements
-)
+    tests_require=test_requirements)

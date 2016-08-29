@@ -159,6 +159,7 @@ class Transcript(Actor):
                  height=1,
                  arrow_spacing=30,
                  arrow_size=150,
+                 label_fontsize=None,
                  **kwargs):
 
         seqname = features['seqname'].iloc[0]
@@ -174,6 +175,7 @@ class Transcript(Actor):
 
         self._arrow_size = arrow_size
         self._arrow_spacing = arrow_spacing
+        self._label_fontsize = label_fontsize
 
         self._plot_kws = toolz.merge(self._default_plot_kws, kwargs)
 
@@ -272,8 +274,8 @@ class Transcript(Actor):
             xycoords='data',
             xytext=(-5, 0),
             textcoords='offset points',
+            fontsize=self._label_fontsize,
             s=self.name,
-            fontsize=12,
             horizontalalignment='right',
             verticalalignment='center',
             clip_on=True)
@@ -376,7 +378,6 @@ class BaseGeneTrack(Track):
         # Collapse transcripts if needed.
         if self._collapse == 'gene':
             groups = (data.dropna(subset=['gene_id']).groupby('gene_id'))
-
             features = [self._data_to_gene(grp) for _, grp in groups]
         else:
             if self._collapse == 'transcript':

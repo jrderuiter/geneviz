@@ -1,3 +1,8 @@
+# pylint: disable=W0622,W0614,W0401
+from __future__ import absolute_import, division, print_function
+from builtins import *
+# pylint: enable=W0622,W0614,W0401
+
 import itertools
 
 import toolz
@@ -114,8 +119,8 @@ class Feature(Actor):
     def __repr__(self):
         fmt_str = ('Feature(seqname={!r}, start={!r}, end={!r}, strand={!r},'
                    ' name={!r}, height={!r})')
-        return fmt_str.format(self.seqname, self.start, self.end,
-                              self.strand, self.name, self._height)
+        return fmt_str.format(self.seqname, self.start, self.end, self.strand,
+                              self.name, self._height)
 
 
 class FeatureTrack(Track):
@@ -142,7 +147,8 @@ class FeatureTrack(Track):
                  hue=None,
                  palette=None,
                  stack_kws=None,
-                 height=1):
+                 height=1,
+                 **kwargs):
         super().__init__()
 
         palette = palette or sns.color_palette()
@@ -152,6 +158,7 @@ class FeatureTrack(Track):
         self._stack_kws = stack_kws or {}
 
         self._height = height
+        self._plot_kws = kwargs
 
     def _preprocess_data(self, data, name, hue, palette):
         plot_data = data[['seqname', 'start', 'end', 'strand']].copy()
@@ -197,4 +204,41 @@ class FeatureTrack(Track):
             strand=row.strand,
             facecolor=row.color,
             name=row.name,
-            height=self._height)
+            height=self._height,
+            **self._plot_kws)
+
+
+class RugTrack(Track):
+    """Track that plots density ticks for features."""
+
+    def __init__(self, data, hue=None, palette=None, height=1.0):
+        super().__init__()
+        self._data = self._preprocess_data(data, hue, palette)
+        self._height = height
+
+    def _preprocess_data(self, data, hue, palette):
+        plot_data = data[['seqname', 'position', 'strand']].copy()
+
+        if hue is not None:
+            if not isinstance(palette, dict):
+                palette = dict(
+                    zip(data[hue].unique(), itertools.cycle(palette)))
+            plot_data['color'] = data[hue].map(palette)
+        else:
+            plot_data['color'] = None
+
+        return plot_data
+
+    def get_height(self, ax, seqname, start, end):
+        return self._height
+
+    def draw(self, ax, seqname, start, end):
+        data = self._data.query(
+            'seqname == {!r} and position > {start} and position < {end}'
+            .format(
+                seqname, start=start, end=end))
+
+        for row in data.itertuples():
+            ax.axvline(row.position, color=row.color)
+
+        ax.yaxis.set_visible(False)
