@@ -44,14 +44,14 @@ class Feature(Actor):
                  strand=None,
                  name=None,
                  height=1,
-                 **kwargs):
+                 plot_kws=None):
         super().__init__(seqname=seqname, start=start, end=end)
 
         self.strand = strand
         self.name = name
 
         self._height = height
-        self._plot_kws = toolz.merge(self._default_plot_kws, kwargs)
+        self._plot_kws = toolz.merge(self._default_plot_kws, plot_kws or {})
 
     def get_height(self):
         return self._height
@@ -148,7 +148,7 @@ class FeatureTrack(Track):
                  palette=None,
                  stack_kws=None,
                  height=1,
-                 **kwargs):
+                 plot_kws=None):
         super().__init__()
 
         palette = palette or sns.color_palette()
@@ -158,7 +158,7 @@ class FeatureTrack(Track):
         self._stack_kws = stack_kws or {}
 
         self._height = height
-        self._plot_kws = kwargs
+        self._plot_kws = plot_kws or {}
 
     def _preprocess_data(self, data, name, hue, palette):
         plot_data = data[['seqname', 'start', 'end', 'strand']].copy()
@@ -197,15 +197,15 @@ class FeatureTrack(Track):
             yield self._feature_from_row(tup)
 
     def _feature_from_row(self, row):
+        plot_kws = toolz.merge({'facecolor': row.color}, self._plot_kws)
         return Feature(
             seqname=row.seqname,
             start=row.start,
             end=row.end,
             strand=row.strand,
-            facecolor=row.color,
             name=row.name,
             height=self._height,
-            **self._plot_kws)
+            plot_kws=plot_kws)
 
 
 class RugTrack(Track):

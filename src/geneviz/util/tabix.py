@@ -133,6 +133,7 @@ class TabixFrame(pd.DataFrame):
               incl_left=True,
               incl_right=True,
               raw=False):
+
         subset = self.fetch_frame(reference, start, end, filters, incl_left,
                                   incl_right)
 
@@ -151,6 +152,7 @@ class TabixFrame(pd.DataFrame):
                     filters=None,
                     incl_left=True,
                     incl_right=True):
+
         return _get_region(
             self,
             reference,

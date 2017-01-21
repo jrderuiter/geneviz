@@ -66,7 +66,12 @@ class Gene(Actor):
 
     _default_plot_kws = {'edgecolor': 'black', 'lw': 1}
 
-    #pylint: disable=too-many-arguments
+    _default_label_kws = {
+        'xytext': (-5, 0),
+        'textcoords': 'offset points',
+        'fontsize': 10
+    }
+
     def __init__(self,
                  seqname,
                  start,
@@ -74,14 +79,18 @@ class Gene(Actor):
                  strand,
                  name=None,
                  height=1,
-                 **kwargs):
+                 plot_kws=None,
+                 label_kws=None):
+
         super().__init__(seqname=seqname, start=start, end=end)
 
         self.strand = strand
         self.name = name
 
         self._height = height
-        self._plot_kws = toolz.merge(self._default_plot_kws, kwargs)
+
+        self._plot_kws = toolz.merge(self._default_plot_kws, plot_kws or {})
+        self._label_kws = toolz.merge(self._default_label_kws, label_kws or {})
 
     def get_height(self):
         return self._height
@@ -123,13 +132,11 @@ class Gene(Actor):
         return ax.annotate(
             xy=(anchor, y + (0.5 * self._height)),
             xycoords='data',
-            xytext=(-5, 0),
-            textcoords='offset points',
             s=self.name,
-            fontsize=12,
             horizontalalignment='right',
             verticalalignment='center',
-            clip_on=True)
+            clip_on=True,
+            **self._label_kws)
 
 
 class Transcript(Actor):
@@ -152,6 +159,11 @@ class Transcript(Actor):
     """
 
     _default_plot_kws = {'edgecolor': 'black', 'lw': 1}
+    _default_label_kws = {
+        'xytext': (-5, 0),
+        'textcoords': 'offset points',
+        'fontsize': 10
+    }
 
     def __init__(self,
                  features,
@@ -159,8 +171,8 @@ class Transcript(Actor):
                  height=1,
                  arrow_spacing=30,
                  arrow_size=150,
-                 label_fontsize=None,
-                 **kwargs):
+                 plot_kws=None,
+                 label_kws=None):
 
         seqname = features['seqname'].iloc[0]
         start = features['start'].min()
@@ -175,9 +187,9 @@ class Transcript(Actor):
 
         self._arrow_size = arrow_size
         self._arrow_spacing = arrow_spacing
-        self._label_fontsize = label_fontsize
 
-        self._plot_kws = toolz.merge(self._default_plot_kws, kwargs)
+        self._plot_kws = toolz.merge(self._default_plot_kws, plot_kws or {})
+        self._label_kws = toolz.merge(self._default_label_kws, label_kws or {})
 
     def get_height(self):
         return self._height
@@ -249,8 +261,7 @@ class Transcript(Actor):
             transOffset=ax.transData,
             zorder=5,
             **self._plot_kws)
-        #            facecolors=('grey',),
-        #            edgecolors=('grey',), zorder=5)
+
         ax.add_collection(arrows)
 
     def _get_arrow_spacing(self, ax):
@@ -272,13 +283,11 @@ class Transcript(Actor):
         return ax.annotate(
             xy=(anchor, y + (0.5 * self._height)),
             xycoords='data',
-            xytext=(-5, 0),
-            textcoords='offset points',
-            fontsize=self._label_fontsize,
             s=self.name,
             horizontalalignment='right',
             verticalalignment='center',
-            clip_on=True)
+            clip_on=True,
+            **self._label_kws)
 
 
 class BaseGeneTrack(Track):
@@ -310,7 +319,7 @@ class BaseGeneTrack(Track):
                  hue=None,
                  palette=None,
                  collapse=None,
-                 filter=None,
+                 filters=None,
                  stack_kws=None,
                  gene_id='gene_name',
                  transcript_id='transcript_name',
@@ -321,10 +330,11 @@ class BaseGeneTrack(Track):
         self._palette = palette
 
         self._collapse = collapse
-        self._filter = filter
+        self._filters = filters
 
         self._stack_kws = stack_kws or {}
-        self._plot_kws = kwargs
+
+        self._obj_kws = kwargs
 
         self._gene_id = gene_id
         self._transcript_id = transcript_id
@@ -356,8 +366,8 @@ class BaseGeneTrack(Track):
 
     def _preprocess_data(self, data):
         # Filter data if needed.
-        if self._filter is not None:
-            data = data.query(self._filter)
+        if self._filters is not None:
+            data = data.query(self._filters)
 
         # Ensure we are modifying a copy.
         data = data.copy()
@@ -396,22 +406,27 @@ class BaseGeneTrack(Track):
 
     def _data_to_gene(self, grp):
         first = grp.iloc[0]
+
+        obj_kws = dict(self._obj_kws)
+        obj_kws['plot_kws'] = toolz.merge({'facecolor': first.color},
+                                          obj_kws.get('plot_kws', {}))
+
         return Gene(
             seqname=first.seqname,
             start=grp['start'].min(),
             end=grp['end'].max(),
             strand=first.strand,
             name=first.gene_id,
-            facecolor=first.color,
-            **self._plot_kws)
+            **self._obj_kws)
 
     def _data_to_transcript(self, grp):
         first = grp.iloc[0]
-        return Transcript(
-            grp,
-            name=first.transcript_id,
-            facecolor=first.color,
-            **self._plot_kws)
+
+        obj_kws = dict(self._obj_kws)
+        obj_kws['plot_kws'] = toolz.merge({'facecolor': first.color},
+                                          obj_kws.get('plot_kws', {}))
+
+        return Transcript(grp, name=first.transcript_id, **obj_kws)
 
     def _collapse_transcripts(self, data):
         # TODO: handle empty case.
@@ -492,8 +507,8 @@ class GtfTrack(BaseGeneTrack):
             # new features to the original transcripts.
             transcripts = set(data[self._transcript_id])
 
-            data = self._gtf.fetch_frame(data, seqname, min(min_, start),
-                                         max(max_, end))
+            data = self._gtf.fetch_frame(
+                seqname, start=min(min_, start), end=max(max_, end))
 
             data = data.ix[data[self._transcript_id].isin(transcripts)]
 
