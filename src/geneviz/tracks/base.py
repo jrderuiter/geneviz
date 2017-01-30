@@ -1,10 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
-#pylint: disable=W0622,W0611
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      int, map, next, oct, open, pow, range, round,
-                      str, super, zip)
-
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -26,62 +19,93 @@ class Track(object):
     def __init__(self):
         super().__init__()
 
-    def draw(self, axis, seqname, start, end):
+    def draw(self, region, ax):
         """Draws the track on the given axis.
 
-        Args:
-            axis (matplotlib.Axes): Axis to draw track on.
-            seqname (str): Chromosome to draw.
-            start (int): Start of draw region.
-            end (int): End of draw region.
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            Genomic region to draw.
+        ax : matplotlib.Axes
+            Axis to draw track on.
+
         """
         raise NotImplementedError()
 
-    #pylint: disable=unused-argument
-    def get_height(self, axis, seqname, start, end):
+    # pylint: disable=unused-argument
+    def get_height(self, region, ax):
         """Returns the height of the track within the plotting region.
 
-        Args:
-            axis (matplotlib.Axes): Axis to draw track on.
-            seqname (str): Chromosome to draw.
-            start (int): Start of draw region.
-            end (int): End of draw region.
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            Genomic region to draw.
+        ax : matplotlib.Axes)
+            Axis to draw track on.
+
         """
 
         return 1
 
 
-def plot_tracks(tracks, seqname, start, end, figsize=None,
-                height_ratios=None, tick_top=False,
-                padding=(0, 0), reverse=False, despine=False):
+class DummyTrack(Track):
+    """Dummy track that doesn't draw anything."""
+
+    def __init__(self, height=1):
+        super().__init__()
+        self._height = height
+
+    def get_height(self, region, ax):
+        return self._height
+
+    def draw(self, region, ax):
+        pass
+
+
+def plot_tracks(tracks,
+                region,
+                figsize=None,
+                height_ratios=None,
+                tick_top=False,
+                padding=(0, 0),
+                reverse=False,
+                despine=False):
     """Plots given tracks over the specified range on shared axes.
 
-    Args:
-        tracks (List[Track]): List of tracks to plot.
-        seqname (str): Chromosome name.
-        start (int): Start of plot region.
-        end (int): End of plot region.
-        figsize (tuple[int, int]): Size of resulting figure.
-        height_ratios (List[int]): Relative heights of each track.
-        tick_top (bool): Whether xticks should be plotted along top.
-        padding (int, int): Amount of padding to add on the x-axis.
-        reverse (bool): Whether the x-axis should be reversed.
+    Parameters
+    ----------
+    tracks : List[Track]
+        List of tracks to plot.
+    region : Tuple[str, int, int]
+        Genomic region to draw.
+    figsize : Tuple[int, int]
+        Size of resulting figure.
+    height_ratios : List[int]
+        Relative heights of each track.
+    tick_top : bool
+        Whether xticks should be plotted along top.
+    padding : Tuple[int, int]
+        Amount of padding to add on the x-axis.
+    reverse : bool
+        Whether the x-axis should be reversed.
 
-    Returns:
-        fig: Figure on which was drawn.
-        axes: Each of the axes.
+    Returns
+    -------
+    Tuple[matplotlib.Figure, matplotlib.Axes]
+        Figure and axes on which was drawn.
 
     """
 
     if height_ratios is None:
-        height_ratios = _calc_height_ratios(
-            tracks, seqname, start, end, figsize)
+        height_ratios = _calc_height_ratios(tracks, region, figsize, reverse)
 
     # Create shared axes.
     figsize = _calc_figsize(figsize, height_ratios)
 
     fig, axes = plt.subplots(
-        nrows=len(tracks), sharex=True, figsize=figsize,
+        nrows=len(tracks),
+        sharex=True,
+        figsize=figsize,
         gridspec_kw={'height_ratios': height_ratios})
     axes = [axes] if len(tracks) == 1 else axes.flatten()
 
@@ -89,6 +113,8 @@ def plot_tracks(tracks, seqname, start, end, figsize=None,
     fig.subplots_adjust(hspace=0.1)
 
     # Set xlim to required region.
+    _, start, end = region
+
     if reverse:
         x_end, x_start = start - padding[1], end + padding[0]
     else:
@@ -98,7 +124,7 @@ def plot_tracks(tracks, seqname, start, end, figsize=None,
 
     # Plot tracks.
     for track, ax in zip(tracks, axes):
-        track.draw(ax, seqname, start, end)
+        track.draw(region, ax)
 
     # Move x-ticks to the top of the figure if requested.
     if tick_top:
@@ -121,7 +147,7 @@ def plot_tracks(tracks, seqname, start, end, figsize=None,
     return fig
 
 
-def _calc_height_ratios(tracks, seqname, start, end, figsize):
+def _calc_height_ratios(tracks, region, figsize, reverse):
     """Calculates height ratios based on heights of given tracks."""
 
     # Create dummy figure + axes for drawing.
@@ -129,9 +155,17 @@ def _calc_height_ratios(tracks, seqname, start, end, figsize):
     dummy_fig, dummy_axes = plt.subplots(figsize=figsize, nrows=len(tracks))
     dummy_axes = [dummy_axes] if len(tracks) == 1 else dummy_axes.flatten()
 
+    # Set xlimits.
+    if reverse:
+        xlim = region[2], region[1]
+    else:
+        xlim = region[1], region[2]
+    dummy_axes[0].set_xlim(*xlim)
+
     # Calculate heights of the tracks.
-    height_ratios = [t.get_height(ax, seqname, start, end)
-                     for t, ax in zip(tracks, dummy_axes)]
+    height_ratios = [
+        t.get_height(region, ax) for t, ax in zip(tracks, dummy_axes)
+    ]
 
     # Close dummy figure to prevent drawing.
     plt.close(dummy_fig)
