@@ -180,6 +180,8 @@ class FeatureTrack(Track):
                 x=x, dx=dx, y=tup.y + (0.5 * tup.height), dy=0, **arrow_kws)
 
     def _junction_segments(self, grp):
+        grp = grp.sort_values(by='start')
+
         first = grp.iloc[0]
         y = first.y + (0.5 * first.height)
 
