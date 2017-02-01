@@ -2,38 +2,38 @@
 API
 ===
 
-Tracks
-------
-
-Base
-~~~~
+geneviz.tracks.plot_tracks
+--------------------------
 
 .. autofunction:: geneviz.tracks.plot_tracks
 
+geneviz.tracks.Track
+--------------------------
+
 .. autoclass:: geneviz.tracks.Track
     :members:
+
+geneviz.tracks.DummyTrack
+--------------------------
 
 .. autoclass:: geneviz.tracks.DummyTrack
     :members:
 
 
-Feature tracks
-~~~~~~~~~~~~~~
+geneviz.tracks.FeatureTrack
+---------------------------
 
 .. autoclass:: geneviz.tracks.FeatureTrack
     :members:
 
-Gene tracks
-~~~~~~~~~~~
+geneviz.tracks.BiomartTrack
+---------------------------
 
 .. autoclass:: geneviz.tracks.BiomartTrack
     :members:
 
+geneviz.tracks.GtfTrack
+---------------------------
+
 .. autoclass:: geneviz.tracks.GtfTrack
-    :members:
-
-NGS tracks
-~~~~~~~~~~
-
-.. autoclass:: geneviz.tracks.SpliceTrack
     :members:

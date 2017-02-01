@@ -2,8 +2,38 @@
 Usage
 =====
 
-Drawing genomic features
-------------------------
+Feature track
+-------------
+
+Overview
+~~~~~~~~
+
+The feature track is a multi-purpose track that provides functionality for
+drawing (stranded) features along the genome. Features can consist of one
+or multiple genomic ranges, which can optionally be grouped into composite
+elements if needed. As such, this track can represent anything from simple
+features such as read alignments, CpG islands or even genes and gene
+transcripts.
+
+A feature track is instantiated using a dataframe that describes the different
+features. In this dataframe, each row represents a single feature. The
+dataframe is must contain at least the four columns 'chromosome',
+'start', 'end' and strand; which together describe the position and orientation
+of each feature. Optionally, strand may be specified as None
+or np.nan, in which case the corresponding feature is considered to be
+unstranded.
+
+Additional columns may be provided to control different aesthetics of the
+drawn features. For example, when combined with the 'hue' argument, categorical
+columns can be used to determine the color of individual features. Similarly,
+the 'label' argument can be used to indicate which column should be used to
+add labels to the features, which can be useful for adding feature
+names/annotations.
+
+Individual features
+~~~~~~~~~~~~~~~~~~~
+
+A simple example for drawing individual (ungrouped) features is shown below:
 
 .. code-block:: python
 
@@ -17,12 +47,23 @@ Drawing genomic features
                  'strand', 'group', 'type'])
 
     # Plot track.
-    feat_track = FeatureTrack(data=features, hue='type')
+    feat_track = FeatureTrack(data=features)
     plot_tracks([feat_track], region=('1', 0, 80),
                 figsize=(5, None), despine=True)
 
-
 .. plot:: examples/features.py
+
+In this example, we first construct a dataframe **features**, which contains
+three rows representing three features (one stranded and two unstranded).
+This dataframe is used to construct a **FeatureTrack** instance, which we then
+plot using the **plot_tracks** function. Notice that stranded features are
+drawn using directed arrows to indicate their direction, whilst unstranded
+features are drawn as rectangles.
+
+As mentioned above, we can also style and annotate features using values
+in the dataframe. For example, using the **hue** argument, we can color features
+depending on their type, whilst using the **label** argument, we can also add
+label annotations:
 
 .. code-block:: python
 
@@ -30,11 +71,36 @@ Drawing genomic features
 
 .. plot:: examples/features_hue.py
 
+An important feature of the FeatureTrack is that overlapping features are
+stacked automatically, to avoid overplotting features. The height and vertical
+spacing between features than be controlled using the **height** and **spacing**
+arguments.
+
+TODO: example.
+
+Composite features
+~~~~~~~~~~~~~~~~~~
+
+Complex genomic features typically consist of several features spanning
+different genomic ranges. For example, genes typically consist of
+several exons, which are together form gene transcript(s). To represent such
+composite features, the feature track supports grouping of individual features.
+Groups can be specified using the **group** argument, which should refer to
+a categorical column in the dataframe. Groups of features are drawn together
+and are connected by junctions between the individual junctions.
+
 .. code-block:: python
 
     FeatureTrack(data=features, hue='type', group='group', label='group')
 
 .. plot:: examples/features_grouped.py
+
+The argument **strand_junctions** determines whether the features themselves
+are drawn with their respective strands (strand_junctions = False) or if the
+junctions are used to indicate the strand of the overall group
+(strand_junctions = True). In the latter case, junctions that angle upwards
+indicate groups on the forward strand (from left to right), whilst junctions
+that angle downwards indicate groups on the reverse strand:
 
 .. code-block:: python
 
@@ -44,8 +110,13 @@ Drawing genomic features
 .. plot:: examples/features_grouped_stranded.py
 
 
-Drawing genes/transcripts
--------------------------
+Gene tracks
+-----------
+
+Specialized tracks are provided for drawing gene/transcripts. Internally,
+these tracks use the FeatureTrack for the actual drawing, but provide
+additional functionality for querying gene/transcript definitions and for
+collapsing gene transcripts.
 
 .. code-block:: python
 

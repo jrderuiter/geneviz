@@ -85,8 +85,13 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Geneviz</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#drawing-genomic-features">Drawing genomic features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#drawing-genes-transcripts">Drawing genes/transcripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-track">Feature track</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#individual-features">Individual features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composite-features">Composite features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gene-tracks">Gene tracks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#combining-tracks">Combining tracks</a></li>
 </ul>
 </li>
@@ -138,8 +143,33 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="drawing-genomic-features">
-<h2>Drawing genomic features<a class="headerlink" href="#drawing-genomic-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="feature-track">
+<h2>Feature track<a class="headerlink" href="#feature-track" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>The feature track is a multi-purpose track that provides functionality for
+drawing (stranded) features along the genome. Features can consist of one
+or multiple genomic ranges, which can optionally be grouped into composite
+elements if needed. As such, this track can represent anything from simple
+features such as read alignments, CpG islands or even genes and gene
+transcripts.</p>
+<p>A feature track is instantiated using a dataframe that describes the different
+features. In this dataframe, each row represents a single feature. The
+dataframe is must contain at least the four columns &#8216;chromosome&#8217;,
+&#8216;start&#8217;, &#8216;end&#8217; and strand; which together describe the position and orientation
+of each feature. Optionally, strand may be specified as None
+or np.nan, in which case the corresponding feature is considered to be
+unstranded.</p>
+<p>Additional columns may be provided to control different aesthetics of the
+drawn features. For example, when combined with the &#8216;hue&#8217; argument, categorical
+columns can be used to determine the color of individual features. Similarly,
+the &#8216;label&#8217; argument can be used to indicate which column should be used to
+add labels to the features, which can be useful for adding feature
+names/annotations.</p>
+</div>
+<div class="section" id="individual-features">
+<h3>Individual features<a class="headerlink" href="#individual-features" title="Permalink to this headline">¶</a></h3>
+<p>A simple example for drawing individual (ungrouped) features is shown below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Example features.</span>
 <span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">([</span>
         <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
@@ -150,7 +180,7 @@
              <span class="s1">&#39;strand&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">])</span>
 
 <span class="c1"># Plot track.</span>
-<span class="n">feat_track</span> <span class="o">=</span> <span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+<span class="n">feat_track</span> <span class="o">=</span> <span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 <span class="n">plot_tracks</span><span class="p">([</span><span class="n">feat_track</span><span class="p">],</span> <span class="n">region</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span>
             <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">despine</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
@@ -159,6 +189,16 @@
 <div class="figure">
 <img alt="_images/features.png" src="_images/features.png" />
 </div>
+<p>In this example, we first construct a dataframe <strong>features</strong>, which contains
+three rows representing three features (one stranded and two unstranded).
+This dataframe is used to construct a <strong>FeatureTrack</strong> instance, which we then
+plot using the <strong>plot_tracks</strong> function. Notice that stranded features are
+drawn using directed arrows to indicate their direction, whilst unstranded
+features are drawn as rectangles.</p>
+<p>As mentioned above, we can also style and annotate features using values
+in the dataframe. For example, using the <strong>hue</strong> argument, we can color features
+depending on their type, whilst using the <strong>label</strong> argument, we can also add
+label annotations:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -166,6 +206,21 @@
 <div class="figure">
 <img alt="_images/features_hue.png" src="_images/features_hue.png" />
 </div>
+<p>An important feature of the FeatureTrack is that overlapping features are
+stacked automatically, to avoid overplotting features. The height and vertical
+spacing between features than be controlled using the <strong>height</strong> and <strong>spacing</strong>
+arguments.</p>
+<p>TODO: example.</p>
+</div>
+<div class="section" id="composite-features">
+<h3>Composite features<a class="headerlink" href="#composite-features" title="Permalink to this headline">¶</a></h3>
+<p>Complex genomic features typically consist of several features spanning
+different genomic ranges. For example, genes typically consist of
+several exons, which are together form gene transcript(s). To represent such
+composite features, the feature track supports grouping of individual features.
+Groups can be specified using the <strong>group</strong> argument, which should refer to
+a categorical column in the dataframe. Groups of features are drawn together
+and are connected by junctions between the individual junctions.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -173,6 +228,12 @@
 <div class="figure">
 <img alt="_images/features_grouped.png" src="_images/features_grouped.png" />
 </div>
+<p>The argument <strong>strand_junctions</strong> determines whether the features themselves
+are drawn with their respective strands (strand_junctions = False) or if the
+junctions are used to indicate the strand of the overall group
+(strand_junctions = True). In the latter case, junctions that angle upwards
+indicate groups on the forward strand (from left to right), whilst junctions
+that angle downwards indicate groups on the reverse strand:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span>
              <span class="n">label</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">strand_junctions</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
@@ -182,8 +243,13 @@
 <img alt="_images/features_grouped_stranded.png" src="_images/features_grouped_stranded.png" />
 </div>
 </div>
-<div class="section" id="drawing-genes-transcripts">
-<h2>Drawing genes/transcripts<a class="headerlink" href="#drawing-genes-transcripts" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="gene-tracks">
+<h2>Gene tracks<a class="headerlink" href="#gene-tracks" title="Permalink to this headline">¶</a></h2>
+<p>Specialized tracks are provided for drawing gene/transcripts. Internally,
+these tracks use the FeatureTrack for the actual drawing, but provide
+additional functionality for querying gene/transcript definitions and for
+collapsing gene transcripts.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geneviz.tracks</span> <span class="kn">import</span> <span class="n">BiomartTrack</span><span class="p">,</span> <span class="n">plot_tracks</span>
 
 <span class="n">gene_track</span> <span class="o">=</span> <span class="n">BiomartTrack</span><span class="p">(</span>
