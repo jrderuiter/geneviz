@@ -1,0 +1,6 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "python.pythonPath": "/Users/Julian/anaconda/envs/geneviz-dev/bin/python",
+    "python.formatting.formatOnSave": true,
+    "python.formatting.provider": "yapf"
+}

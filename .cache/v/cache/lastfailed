@@ -1,0 +1,16 @@
+{
+  "tests/tracks/annotation/test_feature.py": true,
+  "tests/util/test_misc.py": true,
+  "tests/util/test_tabix.py::TestGtfFile::()::test_get_gene": true,
+  "tests/util/test_tabix.py::TestGtfFile::()::test_get_gene_by_name": true,
+  "tests/util/test_tabix.py::TestGtfFile::()::test_get_gene_missing": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_filter": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_filter2": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_incl_left_false": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_incl_left_true": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_incl_right_false": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_incl_right_true": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_range": true,
+  "tests/util/test_tabix.py::TestTabixFile::()::test_fetch_reference": true
+}
