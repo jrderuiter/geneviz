@@ -1,0 +1,670 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>geneviz.tracks.feature &mdash; Geneviz 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Geneviz 0.1.0.dev0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Geneviz
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Geneviz</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>geneviz.tracks.feature</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for geneviz.tracks.feature</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
+
+<span class="kn">from</span> <span class="nn">intervaltree</span> <span class="kn">import</span> <span class="n">IntervalTree</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Rectangle</span><span class="p">,</span> <span class="n">FancyArrow</span>
+<span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">PatchCollection</span><span class="p">,</span> <span class="n">LineCollection</span>
+
+<span class="kn">from</span> <span class="nn">geneviz.util.colormap</span> <span class="kn">import</span> <span class="n">build_colormap</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Track</span>
+
+
+<div class="viewcode-block" id="FeatureTrack"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.FeatureTrack">[docs]</a><span class="k">class</span> <span class="nc">FeatureTrack</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Track for plotting generic genomic features in a stacked fashion.</span>
+
+<span class="sd">    The FeatureTrack is the main track that is used to plot genomic features.</span>
+<span class="sd">    Overlapping features are plotted in a stacked fashion to avoid</span>
+<span class="sd">    overplotting. Optionally, features can be grouped together if they belong</span>
+<span class="sd">    to the same group, such as exons for a given gene/transcript. Grouped</span>
+<span class="sd">    features are connected by junctions to indicate that they belong to a</span>
+<span class="sd">    single group. Features can also be colored by their properties, using</span>
+<span class="sd">    the hue and palette arugments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        data : pandas.Dataframe</span>
+<span class="sd">            Dataset for plotting. Each row in the DataFrame is expected to</span>
+<span class="sd">            correspond with a single feature. The DataFrame should have the</span>
+<span class="sd">            following columns: seqname, start, end, strand; which together</span>
+<span class="sd">            specify the location and orientation of the corresponding feature.</span>
+<span class="sd">        group : str</span>
+<span class="sd">            Column (categorical) by which features should be grouped. Grouped</span>
+<span class="sd">            features are drawn together (at the same height) and are visually</span>
+<span class="sd">            connected by junctions.</span>
+<span class="sd">        label : str</span>
+<span class="sd">            Column containing text labels that should be used to name features</span>
+<span class="sd">            in the plot. If group is specified, the label of the first feature</span>
+<span class="sd">            in the group is used for the group.</span>
+<span class="sd">        hue : str</span>
+<span class="sd">            Column (categorical) that should be used to determine the color</span>
+<span class="sd">            of a given feature.</span>
+<span class="sd">        hue_order : List[str]</span>
+<span class="sd">            Order to plot the categorical hue levels in, otherwise the levels</span>
+<span class="sd">            are inferred from the data objects.</span>
+<span class="sd">        palette : List[Union[str, Tuple[float, float, float]]]</span>
+<span class="sd">            Colors to use for the different levels of the hue variable.</span>
+<span class="sd">            Should be specified as a list of colors (strs) or a list of</span>
+<span class="sd">            tuples with RGB values (similar to Seaborn color palettes).</span>
+<span class="sd">        strand_junctions : bool</span>
+<span class="sd">            Boolean that indicates if group junctions should be drawn in</span>
+<span class="sd">            a stranded fashion for groups. If False, the features are drawn</span>
+<span class="sd">            with their own respective strands. If True, the strand of a group</span>
+<span class="sd">            is determined from the first element of the group and the junctions</span>
+<span class="sd">            are drawn upwards (for groups on the forward strand) or downwards</span>
+<span class="sd">            (for groups on the reverse strand).</span>
+<span class="sd">        height : float</span>
+<span class="sd">            The height of an individual feature.</span>
+<span class="sd">        spacing : float</span>
+<span class="sd">            The (vertical) spacing to use between features.</span>
+<span class="sd">        color : str</span>
+<span class="sd">            Color for all of the elements. Overridded by hue.</span>
+<span class="sd">        patch_kws : dict[str, Any]</span>
+<span class="sd">            Dict of keyword arguments to pass to RectangleCollection or</span>
+<span class="sd">            FancyArrow collection when drawing feature patches. Used to</span>
+<span class="sd">            precisely specify the aesthetics of features.</span>
+<span class="sd">        line_kws : dict[str, Any]</span>
+<span class="sd">            Dict of keyword arguments to pass to LineCollection when drawing</span>
+<span class="sd">            the junctions between groups. Used to specify modify the</span>
+<span class="sd">            aesthetics of the junctions.</span>
+<span class="sd">        label_kws : dict[str, Any]</span>
+<span class="sd">            Dict of keyword arguments to pass to ax.annotate when drawing</span>
+<span class="sd">            feature/group labels. Used to precisely specify the aesthetics</span>
+<span class="sd">            of the labels.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data</span><span class="p">,</span>
+                 <span class="n">group</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">strand_junctions</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s1">&#39;dimgrey&#39;</span><span class="p">,</span>
+                 <span class="n">patch_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="c1"># TODO: Add legend for hue.</span>
+
+        <span class="c1"># Setup internal dataframe.</span>
+        <span class="n">color_map</span> <span class="o">=</span> <span class="n">build_colormap</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">hue_order</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_map</span> <span class="o">=</span> <span class="n">color_map</span>
+
+        <span class="c1"># Various visual parameters.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hue</span> <span class="o">=</span> <span class="n">hue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="n">group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">label</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span> <span class="o">=</span> <span class="n">spacing</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strand_junctions</span> <span class="o">=</span> <span class="n">strand_junctions</span>
+
+        <span class="c1"># Detailed style kws for different plot aspects.</span>
+        <span class="n">default_patch_kws</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s1">&#39;edgecolor&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_patch_kws</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">default_patch_kws</span><span class="p">,</span> <span class="n">patch_kws</span> <span class="ow">or</span> <span class="p">{})</span>
+
+        <span class="n">default_line_kws</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line_kws</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">default_line_kws</span><span class="p">,</span> <span class="n">line_kws</span> <span class="ow">or</span> <span class="p">{})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label_kws</span> <span class="o">=</span> <span class="n">label_kws</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FeatureTrack.from_position"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.FeatureTrack.from_position">[docs]</a>    <span class="k">def</span> <span class="nf">from_position</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs instance from frame with positions instead of start/ends.</span>
+
+<span class="sd">        Assumes that the DataFrame contains a &#39;position&#39; column, which defines</span>
+<span class="sd">        the exact position of the given feature. This function expands features</span>
+<span class="sd">        so that the width of the plotted feature is equal to the given width</span>
+<span class="sd">        and features are centered around their position.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.Dataframe</span>
+<span class="sd">            Dataset for plotting. Assumed to be the same format as for the</span>
+<span class="sd">            main constructor, apart from containing a &#39;position&#39; column,</span>
+<span class="sd">            rather than start/end columns.</span>
+<span class="sd">        width : int</span>
+<span class="sd">            The width to use for the expanded features.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Any kwargs are passed to the main constructor.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureTrack.get_height"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.FeatureTrack.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the height of the dummy track.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        region : Tuple[str, int, int]</span>
+<span class="sd">            The genomic region that will be drawn. Specified as a tuple of</span>
+<span class="sd">            (chromosome, start, end).</span>
+<span class="sd">        ax : matplotlib.Axes</span>
+<span class="sd">            Axis that the track will be drawn on.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        height : int</span>
+<span class="sd">            Height of the track.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_data</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+        <span class="n">stacked</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">,</span>
+            <span class="n">label_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_label_extent</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stacked</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span></div>
+
+    <span class="k">def</span> <span class="nf">_fetch_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetches features within a given region.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;chromosome == {!r} and end &gt;= {} and start &lt;= {}&#39;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">region</span><span class="p">))</span>  <span class="c1"># yapf: disable</span>
+
+<div class="viewcode-block" id="FeatureTrack.draw"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.FeatureTrack.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draws the track on the given axis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        region : Tuple[str, int, int]</span>
+<span class="sd">            Genomic region to draw.</span>
+<span class="sd">        ax : matplotlib.Axes</span>
+<span class="sd">            Axis to draw track on.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Fetch data within region.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_data</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+        <span class="n">stacked</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">,</span>
+            <span class="n">label_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_label_extent</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span><span class="p">)</span>
+
+        <span class="c1"># Draw features.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hue</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">patches</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_patch</span><span class="p">(</span><span class="n">tup</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">stacked</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">PatchCollection</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_patch_kws</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">hue</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">stacked</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hue</span><span class="p">):</span>
+                <span class="n">patches</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_patch</span><span class="p">(</span><span class="n">tup</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">grp</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+                <span class="n">patch_kws</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_patch_kws</span><span class="p">,</span>
+                                        <span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_map</span><span class="p">[</span><span class="n">hue</span><span class="p">]})</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">PatchCollection</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="o">**</span><span class="n">patch_kws</span><span class="p">))</span>
+
+        <span class="c1"># Draw junctions/labels.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">stacked</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="p">):</span>
+                <span class="c1"># Collect junction segments.</span>
+                <span class="n">segments</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_junction_segments</span><span class="p">(</span><span class="n">grp</span><span class="p">))</span>
+
+                <span class="c1"># Draw labels for groups.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_draw_label_group</span><span class="p">(</span><span class="n">grp</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_line_kws</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Draw labels for single features.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">stacked</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_draw_label_single</span><span class="p">(</span><span class="n">tup</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+
+        <span class="c1"># Set ylim and style axes.</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stacked</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span></div>
+
+    <span class="k">def</span> <span class="nf">_feature_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tup</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strand_junctions</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">tup</span><span class="o">.</span><span class="n">strand</span><span class="p">):</span>
+            <span class="c1"># Return rectangle.</span>
+            <span class="k">return</span> <span class="n">Rectangle</span><span class="p">(</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">tup</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">tup</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">tup</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">tup</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">tup</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Return directed arrow.</span>
+            <span class="k">if</span> <span class="n">tup</span><span class="o">.</span><span class="n">strand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">tup</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">tup</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">tup</span><span class="o">.</span><span class="n">start</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">tup</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">tup</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">tup</span><span class="o">.</span><span class="n">end</span>
+
+            <span class="n">arrow_kws</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">head_width</span><span class="o">=</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">tup</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                <span class="n">head_length</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">tup</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">tup</span><span class="o">.</span><span class="n">end</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tup</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                <span class="n">length_includes_head</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">FancyArrow</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">tup</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tup</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">dy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">arrow_kws</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_junction_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grp</span><span class="p">):</span>
+        <span class="n">grp</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;start&#39;</span><span class="p">)</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">first</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strand_junctions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">strand</span><span class="p">):</span>
+            <span class="c1"># Plot stranded junction with offset middle.</span>
+            <span class="n">mid_offset</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">first</span><span class="o">.</span><span class="n">height</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grp</span><span class="o">.</span><span class="n">end</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">grp</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">end</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">y_mid</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="n">mid_offset</span> <span class="o">*</span> <span class="n">first</span><span class="o">.</span><span class="n">strand</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">mid</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">),</span> <span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Plot unstranded junction as straight line.</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grp</span><span class="o">.</span><span class="n">end</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">grp</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="k">yield</span> <span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_draw_label_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grp</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="c1"># Check if we are drawing in reverse.</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+        <span class="n">reverse</span> <span class="o">=</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Use end as anchor for reverse situation.</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="n">grp</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">first</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="c1"># Draw label.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">first</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_draw_label_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tup</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="c1"># Check if we are drawing in reverse.</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+        <span class="n">reverse</span> <span class="o">=</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Use end as anchor for reverse situation.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tup</span><span class="o">.</span><span class="n">end</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="n">tup</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tup</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">tup</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="c1"># Draw label.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">tup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_draw_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+            <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset points&#39;</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+            <span class="n">clip_on</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_label_kws</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_label_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_draw_label</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+        <span class="n">bbox</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">get_window_extent</span><span class="p">()</span>
+        <span class="n">dbox</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">transformed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="o">.</span><span class="n">inverted</span><span class="p">())</span>
+
+        <span class="n">txt</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">dbox</span></div>
+
+
+<span class="k">class</span> <span class="nc">RugTrack</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Track that plots density ticks for features.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">height</span>
+
+    <span class="k">def</span> <span class="nf">_preprocess_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
+        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s1">&#39;chromosome&#39;</span><span class="p">,</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="s1">&#39;strand&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">hue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">palette</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">palette</span><span class="p">)))</span>
+            <span class="n">plot_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">plot_data</span>
+
+    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="s1">&#39;chromosome == {!r} and position &gt; {} and position &lt; {}&#39;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">region</span><span class="p">))</span>  <span class="c1"># yapf: disable</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+
+<span class="n">BoundingBox</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;BoundingBox&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">pack_ffdh</span><span class="p">(</span><span class="n">bounding_boxes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the First-Fit Decreasing Height algorithm.</span>
+
+<span class="sd">    See http://cgi.csc.liv.ac.uk/~epa/surveyhtml.html for a description</span>
+<span class="sd">    of the algorithm and other options for packing algorithms.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sort boxes by decreasing height and size.</span>
+    <span class="n">bounding_boxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">bounding_boxes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">box</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">))</span>
+    <span class="n">bounding_boxes</span> <span class="o">=</span> <span class="n">bounding_boxes</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">level_heights</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bounding_boxes</span><span class="p">:</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="o">.</span><span class="n">overlaps</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">):</span>
+                <span class="n">level</span><span class="o">.</span><span class="n">addi</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+                <span class="n">placed</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">placed</span><span class="p">:</span>
+            <span class="n">new_level</span> <span class="o">=</span> <span class="n">IntervalTree</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">box</span><span class="p">)])</span>
+            <span class="n">levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_level</span><span class="p">)</span>
+            <span class="n">level_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+    <span class="n">levels_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">interval</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">level</span><span class="p">]</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">levels_list</span><span class="p">,</span> <span class="n">level_heights</span>
+
+
+<span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+          <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Stacks features in data frame.&quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: Refactor out label function? (Not a core feature of stack).</span>
+
+    <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">agg_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="nb">min</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">agg_funcs</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;first&#39;</span>
+
+        <span class="n">grouped</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_funcs</span><span class="p">))</span>
+
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">_stack</span><span class="p">(</span>
+            <span class="n">grouped</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">label_func</span><span class="o">=</span><span class="n">label_func</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">)</span>
+        <span class="n">heights</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">group</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">heights</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">heights</span><span class="p">[[</span><span class="n">group</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">_stack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">label_func</span><span class="o">=</span><span class="n">label_func</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">heights</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_stack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_augment_with_labels</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_func</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+
+    <span class="n">levels</span><span class="p">,</span> <span class="n">level_heights</span> <span class="o">=</span> <span class="n">pack_ffdh</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+
+    <span class="n">level_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">level_heights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">level_heights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">level_offsets</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">level_offsets</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">objs</span><span class="p">,</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="n">level_offsets</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">obj</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">offset</span><span class="p">))</span>
+
+    <span class="n">index</span><span class="p">,</span> <span class="n">y_values</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">rows</span><span class="p">)</span>
+    <span class="n">heights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_values</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">heights</span>
+
+
+<span class="k">def</span> <span class="nf">_augment_with_labels</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_func</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="c1"># Augment positions.</span>
+    <span class="n">anchor_col</span> <span class="o">=</span> <span class="s1">&#39;end&#39;</span> <span class="k">if</span> <span class="n">reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;start&#39;</span>
+
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">label_func</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lab</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span><span class="o">.</span><span class="n">x0</span>
+        <span class="k">for</span> <span class="n">lab</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">anchor_col</span><span class="p">])</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">anchor_col</span><span class="p">:</span> <span class="n">positions</span><span class="p">})</span>
+
+
+<span class="k">def</span> <span class="nf">reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if x-axis is reversed.&quot;&quot;&quot;</span>
+    <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Julian de Ruiter.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.0.dev0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; Geneviz 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Geneviz 0.1.0.dev0 documentation" href="index.html"/>
+        <link rel="next" title="&lt;no title&gt;" href="contributing.html"/>
+        <link rel="prev" title="Usage" href="usage.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Geneviz
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tracks">Tracks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#base">Base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#feature-tracks">Feature tracks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gene-tracks">Gene tracks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ngs-tracks">NGS tracks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Geneviz</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="tracks">
+<h2>Tracks<a class="headerlink" href="#tracks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="base">
+<h3>Base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="geneviz.tracks.plot_tracks">
+<code class="descclassname">geneviz.tracks.</code><code class="descname">plot_tracks</code><span class="sig-paren">(</span><em>tracks</em>, <em>region</em>, <em>figsize=None</em>, <em>height_ratios=None</em>, <em>tick_top=False</em>, <em>padding=(0</em>, <em>0)</em>, <em>reverse=False</em>, <em>despine=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#plot_tracks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.plot_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots given tracks over the specified range on shared axes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tracks</strong> (<em>List[Track]</em>) &#8211; List of tracks to draw.</li>
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; Genomic region to draw.</li>
+<li><strong>figsize</strong> (<em>Tuple[int, int]</em>) &#8211; Size of resulting figure, specified as a tuple of (width, height).
+Height may be omitted (by passing None), in which case the height
+of the figure will be scaled depending on the heights of the tracks.</li>
+<li><strong>height_ratios</strong> (<em>List[int]</em>) &#8211; Relative heights of each track.</li>
+<li><strong>tick_top</strong> (<em>bool</em>) &#8211; Whether xticks should be plotted along top.</li>
+<li><strong>padding</strong> (<em>Tuple[int, int]</em>) &#8211; Amount of padding to add on the x-axis (in genomic space).</li>
+<li><strong>reverse</strong> (<em>bool</em>) &#8211; Whether the x-axis should be reversed, useful for drawing features
+on the reverse strand from left to right.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Figure and axes on which was drawn.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tuple[matplotlib.Figure, matplotlib.Axes]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="geneviz.tracks.Track">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">Track</code><a class="reference internal" href="_modules/geneviz/tracks/base.html#Track"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.Track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class representing a Geneviz track.</p>
+<p>Specifies two methods, <strong>draw</strong> and <strong>get_height</strong>, that form the main
+interface of a track and should be overridden in each subclass. The
+method <strong>get_height</strong> is used to determine the height of a given track,
+which determine the (relative) amount of vertical space the track is
+given when drawn. The <strong>draw</strong> method called by plot_tracks to draw the
+track on a given axis for a given region.</p>
+<dl class="method">
+<dt id="geneviz.tracks.Track.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#Track.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.Track.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the track on the given axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; Genomic region to draw.</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis to draw track on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="geneviz.tracks.Track.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#Track.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.Track.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the height of the track within the plotting region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; The genomic region that will be drawn. Specified as a tuple of
+(chromosome, start, end).</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis that the track will be drawn on. Used to determine the
+size of some features that may be dependent on the axis (such
+as the space required to draw labels etc.).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>height</strong> &#8211; Height of the track within the given region.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="geneviz.tracks.DummyTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">DummyTrack</code><span class="sig-paren">(</span><em>height=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#DummyTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.DummyTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dummy track that doesn&#8217;t draw anything.</p>
+<p>This track can be used to create a blank axis that can be drawn on
+manually at a later time point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>height</strong> (<em>int</em>) &#8211; Height of the dummy track.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="geneviz.tracks.DummyTrack.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#DummyTrack.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.DummyTrack.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the track on the given axis.</p>
+<p>This is effectively a no-op for the dummy track.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; Genomic region to draw.</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis to draw track on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="geneviz.tracks.DummyTrack.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#DummyTrack.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.DummyTrack.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (fixed) height of the dummy track.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; The genomic region that will be drawn. Specified as a tuple of
+(chromosome, start, end).</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis that the track will be drawn on.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>height</strong> &#8211; Height of the dummy track.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="feature-tracks">
+<h3>Feature tracks<a class="headerlink" href="#feature-tracks" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="geneviz.tracks.FeatureTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">FeatureTrack</code><span class="sig-paren">(</span><em>data</em>, <em>group=None</em>, <em>label=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>strand_junctions=False</em>, <em>height=1.0</em>, <em>spacing=0.05</em>, <em>color='dimgrey'</em>, <em>patch_kws=None</em>, <em>line_kws=None</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#FeatureTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.FeatureTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Track for plotting generic genomic features in a stacked fashion.</p>
+<p>The FeatureTrack is the main track that is used to plot genomic features.
+Overlapping features are plotted in a stacked fashion to avoid
+overplotting. Optionally, features can be grouped together if they belong
+to the same group, such as exons for a given gene/transcript. Grouped
+features are connected by junctions to indicate that they belong to a
+single group. Features can also be colored by their properties, using
+the hue and palette arugments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>pandas.Dataframe</em>) &#8211; Dataset for plotting. Each row in the DataFrame is expected to
+correspond with a single feature. The DataFrame should have the
+following columns: seqname, start, end, strand; which together
+specify the location and orientation of the corresponding feature.</li>
+<li><strong>group</strong> (<em>str</em>) &#8211; Column (categorical) by which features should be grouped. Grouped
+features are drawn together (at the same height) and are visually
+connected by junctions.</li>
+<li><strong>label</strong> (<em>str</em>) &#8211; Column containing text labels that should be used to name features
+in the plot. If group is specified, the label of the first feature
+in the group is used for the group.</li>
+<li><strong>hue</strong> (<em>str</em>) &#8211; Column (categorical) that should be used to determine the color
+of a given feature.</li>
+<li><strong>hue_order</strong> (<em>List[str]</em>) &#8211; Order to plot the categorical hue levels in, otherwise the levels
+are inferred from the data objects.</li>
+<li><strong>palette</strong> (<em>List[Union[str, Tuple[float, float, float]]]</em>) &#8211; Colors to use for the different levels of the hue variable.
+Should be specified as a list of colors (strs) or a list of
+tuples with RGB values (similar to Seaborn color palettes).</li>
+<li><strong>strand_junctions</strong> (<em>bool</em>) &#8211; Boolean that indicates if group junctions should be drawn in
+a stranded fashion for groups. If False, the features are drawn
+with their own respective strands. If True, the strand of a group
+is determined from the first element of the group and the junctions
+are drawn upwards (for groups on the forward strand) or downwards
+(for groups on the reverse strand).</li>
+<li><strong>height</strong> (<em>float</em>) &#8211; The height of an individual feature.</li>
+<li><strong>spacing</strong> (<em>float</em>) &#8211; The (vertical) spacing to use between features.</li>
+<li><strong>color</strong> (<em>str</em>) &#8211; Color for all of the elements. Overridded by hue.</li>
+<li><strong>patch_kws</strong> (<em>dict[str, Any]</em>) &#8211; Dict of keyword arguments to pass to RectangleCollection or
+FancyArrow collection when drawing feature patches. Used to
+precisely specify the aesthetics of features.</li>
+<li><strong>line_kws</strong> (<em>dict[str, Any]</em>) &#8211; Dict of keyword arguments to pass to LineCollection when drawing
+the junctions between groups. Used to specify modify the
+aesthetics of the junctions.</li>
+<li><strong>label_kws</strong> (<em>dict[str, Any]</em>) &#8211; Dict of keyword arguments to pass to ax.annotate when drawing
+feature/group labels. Used to precisely specify the aesthetics
+of the labels.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="geneviz.tracks.FeatureTrack.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#FeatureTrack.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.FeatureTrack.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the track on the given axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; Genomic region to draw.</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis to draw track on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="geneviz.tracks.FeatureTrack.from_position">
+<em class="property">classmethod </em><code class="descname">from_position</code><span class="sig-paren">(</span><em>data</em>, <em>width</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#FeatureTrack.from_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.FeatureTrack.from_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs instance from frame with positions instead of start/ends.</p>
+<p>Assumes that the DataFrame contains a &#8216;position&#8217; column, which defines
+the exact position of the given feature. This function expands features
+so that the width of the plotted feature is equal to the given width
+and features are centered around their position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>pandas.Dataframe</em>) &#8211; Dataset for plotting. Assumed to be the same format as for the
+main constructor, apart from containing a &#8216;position&#8217; column,
+rather than start/end columns.</li>
+<li><strong>width</strong> (<em>int</em>) &#8211; The width to use for the expanded features.</li>
+<li><strong>**kwargs</strong> &#8211; Any kwargs are passed to the main constructor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="geneviz.tracks.FeatureTrack.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#FeatureTrack.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.FeatureTrack.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the height of the dummy track.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; The genomic region that will be drawn. Specified as a tuple of
+(chromosome, start, end).</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis that the track will be drawn on.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>height</strong> &#8211; Height of the track.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="gene-tracks">
+<h3>Gene tracks<a class="headerlink" href="#gene-tracks" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="geneviz.tracks.BiomartTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">BiomartTrack</code><span class="sig-paren">(</span><em>host='http://www.ensembl.org'</em>, <em>mart='ENSEMBL_MART_ENSEMBL'</em>, <em>dataset='hsapiens_gene_ensembl'</em>, <em>gene_id='gene_id'</em>, <em>transcript_id='transcript_id'</em>, <em>collapse=None</em>, <em>filter=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>height=0.9</em>, <em>spacing=0.05</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/gene.html#BiomartTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.BiomartTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Track for plotting gene/transcript annotations from Biomart.</p>
+<p>Gene draws genes/transcripts on a genomic axis, in a stacked
+fashion if transcripts/genes are overlapping. Gene annotations
+are queried directly from Biomart.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host</strong> (<em>str</em>) &#8211; Biomart host address.</li>
+<li><strong>mart</strong> (<em>str</em>) &#8211; Biomart mart name.</li>
+<li><strong>dataset</strong> (<em>str</em>) &#8211; Biomart dataset name.</li>
+<li><strong>**kwargs</strong> &#8211; Keywords are passed to the GeneTrack constructor,
+which is used internally to draw transcripts/genes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="geneviz.tracks.GtfTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">GtfTrack</code><span class="sig-paren">(</span><em>gtf_path</em>, <em>gene_id='gene_id'</em>, <em>transcript_id='transcript_id'</em>, <em>collapse=None</em>, <em>filter=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>height=0.9</em>, <em>spacing=0.05</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/gene.html#GtfTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.GtfTrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="ngs-tracks">
+<h3>NGS tracks<a class="headerlink" href="#ngs-tracks" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="geneviz.tracks.SpliceTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">SpliceTrack</code><span class="sig-paren">(</span><em>data</em>, <em>height=1</em>, <em>color=None</em>, <em>patch_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/ngs.html#SpliceTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.SpliceTrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="contributing.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral" title="Usage" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Julian de Ruiter.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0.dev0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; Geneviz 0.1.0.dev0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Geneviz 0.1.0.dev0 documentation" href="index.html"/>
+        <link rel="next" title="API" href="api.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Geneviz
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#drawing-genomic-features">Drawing genomic features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drawing-genes-transcripts">Drawing genes/transcripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#combining-tracks">Combining tracks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Geneviz</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Usage</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/usage.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="drawing-genomic-features">
+<h2>Drawing genomic features<a class="headerlink" href="#drawing-genomic-features" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Example features.</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;chromosome&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;strand&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">])</span>
+
+<span class="c1"># Plot track.</span>
+<span class="n">feat_track</span> <span class="o">=</span> <span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+<span class="n">plot_tracks</span><span class="p">([</span><span class="n">feat_track</span><span class="p">],</span> <span class="n">region</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">despine</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/features.py">Source code</a>, <a class="reference external" href="./examples/features.png">png</a>, <a class="reference external" href="./examples/features.hires.png">hires.png</a>, <a class="reference external" href="./examples/features.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/features.png" src="_images/features.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/features_hue.py">Source code</a>, <a class="reference external" href="./examples/features_hue.png">png</a>, <a class="reference external" href="./examples/features_hue.hires.png">hires.png</a>, <a class="reference external" href="./examples/features_hue.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/features_hue.png" src="_images/features_hue.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/features_grouped.py">Source code</a>, <a class="reference external" href="./examples/features_grouped.png">png</a>, <a class="reference external" href="./examples/features_grouped.hires.png">hires.png</a>, <a class="reference external" href="./examples/features_grouped.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/features_grouped.png" src="_images/features_grouped.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">FeatureTrack</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">strand_junctions</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/features_grouped_stranded.py">Source code</a>, <a class="reference external" href="./examples/features_grouped_stranded.png">png</a>, <a class="reference external" href="./examples/features_grouped_stranded.hires.png">hires.png</a>, <a class="reference external" href="./examples/features_grouped_stranded.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/features_grouped_stranded.png" src="_images/features_grouped_stranded.png" />
+</div>
+</div>
+<div class="section" id="drawing-genes-transcripts">
+<h2>Drawing genes/transcripts<a class="headerlink" href="#drawing-genes-transcripts" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geneviz.tracks</span> <span class="kn">import</span> <span class="n">BiomartTrack</span><span class="p">,</span> <span class="n">plot_tracks</span>
+
+<span class="n">gene_track</span> <span class="o">=</span> <span class="n">BiomartTrack</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;mmusculus_gene_ensembl&#39;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;strand&#39;</span><span class="p">,</span>
+    <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_name&#39;</span><span class="p">,</span>
+    <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">plot_tracks</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">gene_track</span><span class="p">],</span>
+    <span class="n">region</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="mi">77618614</span><span class="p">,</span> <span class="mi">77843156</span><span class="p">),</span>
+    <span class="n">despine</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/genes_biomart.py">Source code</a>, <a class="reference external" href="./examples/genes_biomart.png">png</a>, <a class="reference external" href="./examples/genes_biomart.hires.png">hires.png</a>, <a class="reference external" href="./examples/genes_biomart.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/genes_biomart.png" src="_images/genes_biomart.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">BiomartTrack</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;mmusculus_gene_ensembl&#39;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;strand&#39;</span><span class="p">,</span>
+    <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_name&#39;</span><span class="p">,</span>
+    <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">collapse</span><span class="o">=</span><span class="s1">&#39;transcript&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/genes_biomart_collapsed.py">Source code</a>, <a class="reference external" href="./examples/genes_biomart_collapsed.png">png</a>, <a class="reference external" href="./examples/genes_biomart_collapsed.hires.png">hires.png</a>, <a class="reference external" href="./examples/genes_biomart_collapsed.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/genes_biomart_collapsed.png" src="_images/genes_biomart_collapsed.png" />
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">BiomartTrack</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;mmusculus_gene_ensembl&#39;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;strand&#39;</span><span class="p">,</span>
+    <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_name&#39;</span><span class="p">,</span>
+    <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">collapse</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/genes_biomart_gene.py">Source code</a>, <a class="reference external" href="./examples/genes_biomart_gene.png">png</a>, <a class="reference external" href="./examples/genes_biomart_gene.hires.png">hires.png</a>, <a class="reference external" href="./examples/genes_biomart_gene.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/genes_biomart_gene.png" src="_images/genes_biomart_gene.png" />
+</div>
+</div>
+<div class="section" id="combining-tracks">
+<h2>Combining tracks<a class="headerlink" href="#combining-tracks" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Julian de Ruiter.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0.dev0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
