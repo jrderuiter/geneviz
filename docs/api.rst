@@ -2,13 +2,13 @@
 API
 ===
 
-Tracks
-------
-
-Base
-~~~~
+Plotting
+--------
 
 .. autofunction:: geneviz.tracks.plot_tracks
+
+Base tracks
+-----------
 
 .. autoclass:: geneviz.tracks.Track
     :members:
@@ -16,15 +16,17 @@ Base
 .. autoclass:: geneviz.tracks.DummyTrack
     :members:
 
-
 Feature tracks
-~~~~~~~~~~~~~~
+--------------
 
 .. autoclass:: geneviz.tracks.FeatureTrack
     :members:
 
+.. autoclass:: geneviz.tracks.RugTrack
+    :members:
+
 Gene tracks
-~~~~~~~~~~~
+-----------
 
 .. autoclass:: geneviz.tracks.BiomartTrack
     :members:
@@ -32,8 +34,9 @@ Gene tracks
 .. autoclass:: geneviz.tracks.GtfTrack
     :members:
 
+
 NGS tracks
-~~~~~~~~~~
+----------
 
 .. autoclass:: geneviz.tracks.SpliceTrack
     :members:

@@ -121,6 +121,37 @@ class _BaseGeneTrack(Track):
         return track.draw(region, ax)
 
 
+class GeneTrack(_BaseGeneTrack):
+    def __init__(self,
+                 data,
+                 gene_id='gene_id',
+                 transcript_id='transcript_id',
+                 collapse=None,
+                 filter=None,
+                 hue=None,
+                 hue_order=None,
+                 palette=None,
+                 height=0.9,
+                 spacing=0.05,
+                 label_kws=None):
+
+        super().__init__(
+            gene_id=gene_id,
+            transcript_id=transcript_id,
+            collapse=collapse,
+            filter=filter,
+            hue=hue,
+            hue_order=hue_order,
+            palette=palette,
+            height=height,
+            spacing=spacing,
+            label_kws=label_kws)
+        self._data = data
+
+    def _fetch_data(self, region):
+        raise NotImplementedError()
+
+
 class GtfTrack(_BaseGeneTrack):
     def __init__(self,
                  gtf_path,

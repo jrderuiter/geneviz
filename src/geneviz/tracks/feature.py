@@ -337,82 +337,35 @@ class FeatureTrack(Track):
         return dbox
 
 
-class RugTrack(Track):
-    """Track that plots density ticks for features."""
-
-    def __init__(self, data, hue=None, palette=None, height=1.0):
-        super().__init__()
-        self._data = self._preprocess_data(data, hue, palette)
-        self._height = height
-
-    def _preprocess_data(self, data, hue, palette):
-        plot_data = data[['chromosome', 'position', 'strand']].copy()
-
-        if hue is not None:
-            if not isinstance(palette, dict):
-                palette = dict(
-                    zip(data[hue].unique(), itertools.cycle(palette)))
-            plot_data['color'] = data[hue].map(palette)
-        else:
-            plot_data['color'] = None
-
-        return plot_data
-
-    def get_height(self, region, ax):
-        return self._height
-
-    def draw(self, region, ax):
-        data = self._data.query(
-            'chromosome == {!r} and position > {} and position < {}'
-            .format(*region))  # yapf: disable
-
-        for row in data.itertuples():
-            ax.axvline(row.position, color=row.color)
-
-        ax.yaxis.set_visible(False)
-
-
-BoundingBox = namedtuple('BoundingBox', ['start', 'end', 'height'])
-
-
-def pack_ffdh(bounding_boxes):
-    """Implementation of the First-Fit Decreasing Height algorithm.
-
-    See http://cgi.csc.liv.ac.uk/~epa/surveyhtml.html for a description
-    of the algorithm and other options for packing algorithms.
-
-    """
-
-    # Sort boxes by decreasing height and size.
-    bounding_boxes = sorted(
-        bounding_boxes, key=lambda box: (box.height, box.end - box.start))
-    bounding_boxes = bounding_boxes[::-1]
-
-    levels = []
-    level_heights = []
-
-    for box in bounding_boxes:
-        placed = False
-
-        for level in levels:
-            if not level.overlaps(box.start, box.end):
-                level.addi(box.start, box.end, box)
-                placed = True
-                break
-
-        if not placed:
-            new_level = IntervalTree.from_tuples([(box.start, box.end, box)])
-            levels.append(new_level)
-            level_heights.append(box.height)
-
-    levels_list = [[interval[2] for interval in level] for level in levels]
-
-    return levels_list, level_heights
-
-
 def stack(data, group=None, label=None, label_func=None, ax=None,
           spacing=0.05):
-    """Stacks features in data frame."""
+    """Stacks features in given dataframe using the FFDH algorithm.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        DataFrame containing the features to be stacked.
+    group : str
+        Name of categorical column used to group features.
+    label : str
+        Name of categorical column containing feature labels.
+    label_func : Function
+        Function that is used to draw feature labels. This is used to assess
+        the size of each label in data coordinates, which is required when
+        accounting for the label sizes when stacking features.
+    ax : matplotlib.Axes
+        Axes on which feature labels will be drawn. Also used to assess
+        feature label size.
+    spacing : float
+        Amount of vertical spacing to use between features.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Annotated version of the input dataframe, containing an extra
+        column 'y' that denotes the y-offset assigned to each feature.
+
+    """
 
     # TODO: Refactor out label function? (Not a core feature of stack).
 
@@ -443,7 +396,7 @@ def _stack(data, label=None, label_func=None, ax=None, spacing=0.05):
     if label is not None:
         data = _augment_with_labels(data, label, label_func, ax)
 
-    levels, level_heights = pack_ffdh(data.itertuples())
+    levels, level_heights = _pack_ffdh(data.itertuples())
 
     level_offsets = np.cumsum(level_heights, dtype=np.float) - level_heights[0]
     level_offsets += np.arange(1, len(level_offsets) + 1) * spacing
@@ -459,9 +412,61 @@ def _stack(data, label=None, label_func=None, ax=None, spacing=0.05):
     return heights
 
 
+def _pack_ffdh(objects):
+    """Implementation of the First-Fit Decreasing Height packing algorithm.
+
+    Packs objects into multiple levels, whilst trying to minimize the total
+    used height. Uses a greedy approach that sorts objects by decreasing height,
+    and then packs them accordingly.
+
+    See http://cgi.csc.liv.ac.uk/~epa/surveyhtml.html for a description
+    of the algorithm and other options for packing algorithms.
+
+    Parameters
+    ----------
+    objects : List[Any]
+        Objects to pack. Any object can be used, as long as the objects have
+        'height', 'start' and 'end' properties, which define the height
+        and range of the object.
+
+    Returns
+    -------
+    Tuple[List[List[Any]], List[int]]
+        Returns a tuple of level assignments (containing the objects) assigned
+        to each level and a list containing the heights of each level.
+
+    """
+
+    # Sort boxes by decreasing height and size.
+    objects = sorted(
+        objects, key=lambda obj: (obj.height, obj.end - obj.start))
+    objects = objects[::-1]
+
+    levels = []
+    level_heights = []
+
+    for obj in objects:
+        placed = False
+
+        for level in levels:
+            if not level.overlaps(obj.start, obj.end):
+                level.addi(obj.start, obj.end, obj)
+                placed = True
+                break
+
+        if not placed:
+            new_level = IntervalTree.from_tuples([(obj.start, obj.end, obj)])
+            levels.append(new_level)
+            level_heights.append(obj.height)
+
+    levels_list = [[interval[2] for interval in level] for level in levels]
+
+    return levels_list, level_heights
+
+
 def _augment_with_labels(data, label, label_func, ax):
     # Augment positions.
-    anchor_col = 'end' if reversed_axis(ax) else 'start'
+    anchor_col = 'end' if _reversed_axis(ax) else 'start'
 
     positions = [
         label_func(
@@ -472,7 +477,102 @@ def _augment_with_labels(data, label, label_func, ax):
     return data.assign(**{anchor_col: positions})
 
 
-def reversed_axis(ax):
+def _reversed_axis(ax):
     """Checks if x-axis is reversed."""
     xlim = ax.get_xlim()
     return xlim[1] < xlim[0]
+
+
+class RugTrack(Track):
+    """Track that plots density ticks for features.
+
+    Parameters
+    ----------
+    data : pandas.Dataframe
+        Dataset for plotting. Each row in the DataFrame is expected to
+        correspond with a single feature. The DataFrame should have the
+        following columns: seqname, position, strand; which together
+        specify the location and orientation of the corresponding feature.
+    hue : str
+        Column (categorical) that should be used to determine the color
+        of a given feature.
+    hue_order : List[str]
+        Order to plot the categorical hue levels in, otherwise the levels
+        are inferred from the data objects.
+    palette : List[Union[str, Tuple[float, float, float]]]
+        Colors to use for the different levels of the hue variable.
+        Should be specified as a list of colors (strs) or a list of
+        tuples with RGB values (similar to Seaborn color palettes).
+    height : float
+        The height of the track.
+    line_kws : dict[str, Any]
+        Dict of keyword arguments to pass to LineCollection when drawing
+        the ticks. Used to specify modify the aesthetics of the ticks.
+
+    """
+
+    def __init__(self,
+                 data,
+                 hue=None,
+                 hue_order=None,
+                 palette=None,
+                 height=1.0,
+                 line_kws=None):
+        super().__init__()
+
+        self._data = data
+        self._height = height
+
+        self._hue = hue
+        self._color_map = build_colormap(
+            data, hue=hue, palette=palette, order=hue_order)
+        self._line_kws = line_kws or {}
+
+    def get_height(self, region, ax):
+        """Returns the height of the track.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            The genomic region that will be drawn. Specified as a tuple of
+            (chromosome, start, end).
+        ax : matplotlib.Axes
+            Axis that the track will be drawn on.
+
+        Returns
+        -------
+        height : int
+            Height of the track.
+
+        """
+        return self._height
+
+    def draw(self, region, ax):
+        """Draws the track on the given axis.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            Genomic region to draw.
+        ax : matplotlib.Axes
+            Axis to draw track on.
+
+        """
+
+        data = self._data.query(
+            'chromosome == {!r} and position > {} and position < {}'
+            .format(*region))  # yapf: disable
+
+        if self._hue is not None:
+            for hue, grp in data.groupby(self._hue):
+                self._draw_lines(grp, ax, color=self._color_map[hue])
+        else:
+            self._draw_lines(data, ax, color=self._color_map[hue])
+
+        ax.yaxis.set_visible(False)
+
+    def _draw_lines(self, data, ax, color=None):
+        segments = (((tup.position, 0), (tup.position, self._height))
+                    for tup in data.itertuples())
+        lines = LineCollection(segments, color=color, **self._line_kws)
+        ax.add_collection(lines)
