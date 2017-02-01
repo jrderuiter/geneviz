@@ -19,17 +19,66 @@ from .base import Track
 
 
 class FeatureTrack(Track):
-    """Track for plotting generic genomic features.
+    """Track for plotting generic genomic features in a stacked fashion.
 
-    FeatureTrack draws a list of features on a given track axis,
-    using the StackedTrack to stack overlapping features. The main
-    utility of the class lises in the `from_frame` class method,
-    which constructs a feature track directly from a dataframe.
+    The FeatureTrack is the main track that is used to plot genomic features.
+    Overlapping features are plotted in a stacked fashion to avoid
+    overplotting. Optionally, features can be grouped together if they belong
+    to the same group, such as exons for a given gene/transcript. Grouped
+    features are connected by junctions to indicate that they belong to a
+    single group. Features can also be colored by their properties, using
+    the hue and palette arugments.
 
-    Args:
-        data (pandas.Dataframe): DataFrame containing the features to
-            draw. Should have the following columns: seqname, start,
-            end, strand. Each row is taken as a separate feature.
+    Parameters
+    ----------
+        data : pandas.Dataframe
+            Dataset for plotting. Each row in the DataFrame is expected to
+            correspond with a single feature. The DataFrame should have the
+            following columns: seqname, start, end, strand; which together
+            specify the location and orientation of the corresponding feature.
+        group : str
+            Column (categorical) by which features should be grouped. Grouped
+            features are drawn together (at the same height) and are visually
+            connected by junctions.
+        label : str
+            Column containing text labels that should be used to name features
+            in the plot. If group is specified, the label of the first feature
+            in the group is used for the group.
+        hue : str
+            Column (categorical) that should be used to determine the color
+            of a given feature.
+        hue_order : List[str]
+            Order to plot the categorical hue levels in, otherwise the levels
+            are inferred from the data objects.
+        palette : List[Union[str, Tuple[float, float, float]]]
+            Colors to use for the different levels of the hue variable.
+            Should be specified as a list of colors (strs) or a list of
+            tuples with RGB values (similar to Seaborn color palettes).
+        strand_junctions : bool
+            Boolean that indicates if group junctions should be drawn in
+            a stranded fashion for groups. If False, the features are drawn
+            with their own respective strands. If True, the strand of a group
+            is determined from the first element of the group and the junctions
+            are drawn upwards (for groups on the forward strand) or downwards
+            (for groups on the reverse strand).
+        height : float
+            The height of an individual feature.
+        spacing : float
+            The (vertical) spacing to use between features.
+        color : str
+            Color for all of the elements. Overridded by hue.
+        patch_kws : dict[str, Any]
+            Dict of keyword arguments to pass to RectangleCollection or
+            FancyArrow collection when drawing feature patches. Used to
+            precisely specify the aesthetics of features.
+        line_kws : dict[str, Any]
+            Dict of keyword arguments to pass to LineCollection when drawing
+            the junctions between groups. Used to specify modify the
+            aesthetics of the junctions.
+        label_kws : dict[str, Any]
+            Dict of keyword arguments to pass to ax.annotate when drawing
+            feature/group labels. Used to precisely specify the aesthetics
+            of the labels.
 
     """
 
@@ -41,7 +90,7 @@ class FeatureTrack(Track):
                  hue_order=None,
                  palette=None,
                  strand_junctions=False,
-                 height=1,
+                 height=1.0,
                  spacing=0.05,
                  color='dimgrey',
                  patch_kws=None,
@@ -79,7 +128,25 @@ class FeatureTrack(Track):
 
     @classmethod
     def from_position(cls, data, width, **kwargs):
-        """Constructs track from frame with positions instead of start/ends."""
+        """Constructs instance from frame with positions instead of start/ends.
+
+        Assumes that the DataFrame contains a 'position' column, which defines
+        the exact position of the given feature. This function expands features
+        so that the width of the plotted feature is equal to the given width
+        and features are centered around their position.
+
+        Parameters
+        ----------
+        data : pandas.Dataframe
+            Dataset for plotting. Assumed to be the same format as for the
+            main constructor, apart from containing a 'position' column,
+            rather than start/end columns.
+        width : int
+            The width to use for the expanded features.
+        **kwargs
+            Any kwargs are passed to the main constructor.
+
+        """
 
         data = data.assign(
             start=data['position'] - (width // 2),
@@ -88,7 +155,22 @@ class FeatureTrack(Track):
         return cls(data=data, **kwargs)
 
     def get_height(self, region, ax):
-        """Returns the height of the track."""
+        """Returns the height of the dummy track.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            The genomic region that will be drawn. Specified as a tuple of
+            (chromosome, start, end).
+        ax : matplotlib.Axes
+            Axis that the track will be drawn on.
+
+        Returns
+        -------
+        height : int
+            Height of the track.
+
+        """
 
         data = self._fetch_data(region).assign(height=self._height)
         stacked = stack(
@@ -109,7 +191,16 @@ class FeatureTrack(Track):
             .format(*region))  # yapf: disable
 
     def draw(self, region, ax):
-        """Draws the track."""
+        """Draws the track on the given axis.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            Genomic region to draw.
+        ax : matplotlib.Axes
+            Axis to draw track on.
+
+        """
 
         # Fetch data within region.
         data = self._fetch_data(region).assign(height=self._height)

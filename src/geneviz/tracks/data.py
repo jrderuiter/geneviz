@@ -1,74 +1,73 @@
-# pylint: disable=W0622,W0614,W0401
-from __future__ import absolute_import, division, print_function
-from builtins import *
-# pylint: enable=W0622,W0614,W0401
+# # pylint: disable=W0622,W0614,W0401
+# from __future__ import absolute_import, division, print_function
+# from builtins import *
+# # pylint: enable=W0622,W0614,W0401
 
-import itertools
+# import itertools
 
-import seaborn as sns
-import toolz
+# import seaborn as sns
+# import toolz
 
-from geneviz.tracks import Track
+# from geneviz.tracks import Track
 
+# class DataTrack(Track):
 
-class DataTrack(Track):
+#     _default_kws = dict(marker='o')
 
-    _default_kws = dict(marker='o')
+#     def __init__(self,
+#                  data,
+#                  y=None,
+#                  hue=None,
+#                  palette=None,
+#                  height=1,
+#                  legend_kws=None,
+#                  plot_kws=None):
+#         super().__init__(height=height)
 
-    def __init__(self,
-                 data,
-                 y=None,
-                 hue=None,
-                 palette=None,
-                 height=1,
-                 legend_kws=None,
-                 plot_kws=None):
-        super().__init__(height=height)
+#         y = y or 'y'
+#         palette = palette or sns.color_palette()
 
-        y = y or 'y'
-        palette = palette or sns.color_palette()
+#         self._data = self._preprocess_data(data, y, hue, palette)
 
-        self._data = self._preprocess_data(data, y, hue, palette)
+#         self._legend_kws = legend_kws or {}
+#         self._plot_kws = toolz.merge(self._default_kws, plot_kws or {})
 
-        self._legend_kws = legend_kws or {}
-        self._plot_kws = toolz.merge(self._default_kws, plot_kws or {})
+#     @staticmethod
+#     def _preprocess_data(data, y, hue, palette):
+#         plot_data = data[['seqname', 'position']].copy()
+#         plot_data['y'] = data[y]
 
-    @staticmethod
-    def _preprocess_data(data, y, hue, palette):
-        plot_data = data[['seqname', 'position']].copy()
-        plot_data['y'] = data[y]
+#         if hue is not None:
+#             if not isinstance(palette, dict):
+#                 palette = dict(
+#                     zip(data[hue].unique(), itertools.cycle(palette)))
+#             plot_data['hue'] = data[hue]
+#             plot_data['color'] = data[hue].map(palette)
 
-        if hue is not None:
-            if not isinstance(palette, dict):
-                palette = dict(
-                    zip(data[hue].unique(), itertools.cycle(palette)))
-            plot_data['hue'] = data[hue]
-            plot_data['color'] = data[hue].map(palette)
+#         return plot_data
 
-        return plot_data
+#     def draw(self, ax, seqname, start, end):
+#         # Subset data for range.
+#         data = self._data.query(('seqname == {!r} and '
+#                                  '{} <= position <= {}')
+#                                 .format(seqname, start, end))
 
-    def draw(self, ax, seqname, start, end):
-        # Subset data for range.
-        data = self._data.query(('seqname == {!r} and '
-                                 '{} <= position <= {}')
-                                .format(seqname, start, end))
+#         # Gather plotting kwargs.
+#         if 'hue' in data and 'color' in data:
+#             for (hue, color), grp in data.groupby(['hue', 'color']):
+#                 grp = grp.sort_values(by='position')
+#                 ax.plot(
+#                     grp['position'],
+#                     grp['y'],
+#                     '.',
+#                     label=hue,
+#                     color=color,
+#                     **self._plot_kws)
+#             ax.legend(**self._legend_kws)
 
-        # Gather plotting kwargs.
-        if 'hue' in data and 'color' in data:
-            for (hue, color), grp in data.groupby(['hue', 'color']):
-                grp = grp.sort_values(by='position')
-                ax.plot(
-                    grp['position'],
-                    grp['y'],
-                    '.',
-                    label=hue,
-                    color=color,
-                    **self._plot_kws)
-            ax.legend(**self._legend_kws)
-
-        else:
-            data = data.sort_values(by='position')
-            ax.plot(data['position'], data['y'], **self._plot_kws)
+#         else:
+#             data = data.sort_values(by='position')
+#             ax.plot(data['position'], data['y'], **self._plot_kws)
 
 # class BoxplotTrack(Track):
 

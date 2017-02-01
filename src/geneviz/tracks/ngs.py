@@ -13,29 +13,43 @@ from matplotlib import (path as mpath, collections as mcollections, patches as
                         mpatches)
 
 from geneviz.tracks import Track
-from geneviz.util.tabix import BedFile
+from geneviz.util.tabix import BedIterator
 
 
 class SpliceTrack(Track):
 
-    _default_kws = dict(facecolor='None')
+    _default_kws = dict(facecolor=None, lw=1)
 
-    def __init__(self, bed_file, height=1, **kwargs):
-        super().__init__(height=height)
-        self._bed = BedFile(bed_file)
-        self._kws = toolz.merge(self._default_kws, kwargs)
+    def __init__(self, data, height=1, color=None, patch_kws=None):
+        super().__init__()
 
-    def draw(self, ax, seqname, start, end):
-        splices = self._bed.fetch_frame(seqname, start, end)
+        self._data = data
+        self._height = height
+
+        patch_kws = toolz.merge(self._default_kws, {'edgecolor': color},
+                                patch_kws or {})
+        self._patch_kws = patch_kws
+
+    def get_height(self, region, ax):
+        return self._height
+
+    def _fetch_data(self, region):
+        return self._data.query(
+            ('chromosome == {!r} and end >= {} and start <= {}')
+            .format(*region))  # yapf: disable
+
+    def draw(self, region, ax):
+        data = self._fetch_data(region)
 
         arcs = (self._splice_arc(start, end, score)
-                for start, end, score in zip(splices['chromStart'], splices[
-                    'chromEnd'], splices['score']))
-        patches = mcollections.PatchCollection(arcs, **self._kws)
+                for start, end, score in
+                zip(data['start'], data['end'], data['score'])) # yapf: disable
+
+        patches = mcollections.PatchCollection(arcs, **self._patch_kws)
 
         ax.add_collection(patches)
 
-        ax.set_ylim(0, splices['score'].max())
+        ax.set_ylim(0, data['score'].max())
 
     @staticmethod
     def _splice_arc(start, end, height):
@@ -43,8 +57,10 @@ class SpliceTrack(Track):
         vertices = [(start, 0.), (start, bezier_height), (end, bezier_height),
                     (end, 0)]
 
-        codes = [mpath.Path.MOVETO, mpath.Path.CURVE4, mpath.Path.CURVE4,
-                 mpath.Path.CURVE4]
+        codes = [
+            mpath.Path.MOVETO, mpath.Path.CURVE4, mpath.Path.CURVE4,
+            mpath.Path.CURVE4
+        ]
 
         path = mpath.Path(vertices, codes)
         patch = mpatches.PathPatch(path)
@@ -58,8 +74,9 @@ class CoverageTrack(Track):
                  height=1,
                  fill=True,
                  stepper='all',
-                 plot_kwargs=None):
-        super().__init__(height=height)
+                 plot_kwargs=None,
+                 resample_interval=None):
+        super().__init__()
 
         # Bam file parameters.
         self._bam_path = bam_path
@@ -68,12 +85,15 @@ class CoverageTrack(Track):
         # Draw parameters.
         self._height = height
         self._fill = fill
+        self._resample_interval = resample_interval
+
         self._plot_kwargs = {} if plot_kwargs is None else plot_kwargs
 
-    def get_height(self, ax, seqname, start, end):
+    def get_height(self, region, ax):
         return self._height
 
-    def _get_coverage(self, seqname, start, end):
+    def _get_coverage(self, region):
+        seqname, start, end = region
         hist = np.zeros(end - start)
 
         with pysam.AlignmentFile(native_str(self._bam_path), 'rb') as file_:
@@ -99,12 +119,20 @@ class CoverageTrack(Track):
 
         return hist
 
-    def draw(self, ax, seqname, start, end):
-        # TODO: optimize plotting by only drawing
-        #   points at which y changes.
-        coverage = self._get_coverage(seqname, start, end)
+    def draw(self, region, ax):
+        _, start, end = region
 
+        # Determine coverage.
         x_range = np.arange(start, end)
+        coverage = self._get_coverage(region)
+
+        # Resample if needed.
+        if self._resample_interval is not None:
+            x_new = np.arange(start, end, step=self._resample_interval)
+            coverage = np.interp(x_new, xp=x_range, fp=coverage)
+            x_range = x_new
+
+        # Plot coverage line.
         ax.plot(x_range, coverage, **self._plot_kwargs)
 
         if self._fill:

@@ -10,14 +10,40 @@ except ImportError:
 class Track(object):
     """Abstract base class representing a Geneviz track.
 
-    Specifies one method (draw) that should be overridden in each
-    Track subclass, as this is the method that is called on each
-    track object by plot_tracks.
+    Specifies two methods, **draw** and **get_height**, that form the main
+    interface of a track and should be overridden in each subclass. The
+    method **get_height** is used to determine the height of a given track,
+    which determine the (relative) amount of vertical space the track is
+    given when drawn. The **draw** method called by plot_tracks to draw the
+    track on a given axis for a given region.
 
     """
 
     def __init__(self):
         super().__init__()
+
+    # pylint: disable=unused-argument
+    def get_height(self, region, ax):
+        """Returns the height of the track within the plotting region.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            The genomic region that will be drawn. Specified as a tuple of
+            (chromosome, start, end).
+        ax : matplotlib.Axes
+            Axis that the track will be drawn on. Used to determine the
+            size of some features that may be dependent on the axis (such
+            as the space required to draw labels etc.).
+
+        Returns
+        -------
+        height : int
+            Height of the track within the given region.
+
+        """
+
+        return 1
 
     def draw(self, region, ax):
         """Draws the track on the given axis.
@@ -32,33 +58,55 @@ class Track(object):
         """
         raise NotImplementedError()
 
-    # pylint: disable=unused-argument
-    def get_height(self, region, ax):
-        """Returns the height of the track within the plotting region.
-
-        Parameters
-        ----------
-        region : Tuple[str, int, int]
-            Genomic region to draw.
-        ax : matplotlib.Axes)
-            Axis to draw track on.
-
-        """
-
-        return 1
-
 
 class DummyTrack(Track):
-    """Dummy track that doesn't draw anything."""
+    """Dummy track that doesn't draw anything.
+
+    This track can be used to create a blank axis that can be drawn on
+    manually at a later time point.
+
+    Parameters
+    ----------
+    height : int
+        Height of the dummy track.
+    """
 
     def __init__(self, height=1):
         super().__init__()
         self._height = height
 
     def get_height(self, region, ax):
+        """Returns the (fixed) height of the dummy track.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            The genomic region that will be drawn. Specified as a tuple of
+            (chromosome, start, end).
+        ax : matplotlib.Axes
+            Axis that the track will be drawn on.
+
+        Returns
+        -------
+        height : int
+            Height of the dummy track.
+
+        """
         return self._height
 
     def draw(self, region, ax):
+        """Draws the track on the given axis.
+
+        This is effectively a no-op for the dummy track.
+
+        Parameters
+        ----------
+        region : Tuple[str, int, int]
+            Genomic region to draw.
+        ax : matplotlib.Axes
+            Axis to draw track on.
+
+        """
         pass
 
 
@@ -75,19 +123,22 @@ def plot_tracks(tracks,
     Parameters
     ----------
     tracks : List[Track]
-        List of tracks to plot.
+        List of tracks to draw.
     region : Tuple[str, int, int]
         Genomic region to draw.
     figsize : Tuple[int, int]
-        Size of resulting figure.
+        Size of resulting figure, specified as a tuple of (width, height).
+        Height may be omitted (by passing None), in which case the height
+        of the figure will be scaled depending on the heights of the tracks.
     height_ratios : List[int]
         Relative heights of each track.
     tick_top : bool
         Whether xticks should be plotted along top.
     padding : Tuple[int, int]
-        Amount of padding to add on the x-axis.
+        Amount of padding to add on the x-axis (in genomic space).
     reverse : bool
-        Whether the x-axis should be reversed.
+        Whether the x-axis should be reversed, useful for drawing features
+        on the reverse strand from left to right.
 
     Returns
     -------

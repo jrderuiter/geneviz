@@ -102,6 +102,18 @@ class GenomicIntervalTree(object):
         return self._trees[chromosome].search(begin, end)
 
 
+def merge_genomic_intervals(genomic_intervals):
+    """Merges overlapping genomic intervals."""
+
+    genomic_intervals = sorted(genomic_intervals, key=operator.itemgetter(0))
+    grouped = itertools.groupby(genomic_intervals, key=operator.itemgetter(0))
+
+    for chrom, grp in grouped:
+        intervals = (interval[1:] for interval in grp)
+        for start, end in merge_intervals(intervals):
+            yield chrom, start, end
+
+
 def merge_intervals(intervals):
     """Merges overlapping intervals.
 
