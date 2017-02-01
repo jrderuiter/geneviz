@@ -23,6 +23,9 @@ endef
 export PRINT_HELP_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
+GH_PAGES_SOURCES = docs src Makefile AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
+
+
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
@@ -80,3 +83,14 @@ conda-build: clean-pyc ## build a conda release
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+gh-pages:
+	git checkout gh-pages
+	rm -rf build _sources _static _modules _images examples
+	git checkout develop $(GH_PAGES_SOURCES)
+	git reset HEAD
+	make docs
+	mv -fv docs/_build/html/* ./
+	rm -rf $(GH_PAGES_SOURCES) docs/_build
+	git add -A
+	git commit -m "Generated gh-pages for `git log develop -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout develop
