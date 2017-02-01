@@ -15,6 +15,7 @@
 
 import sys
 import os
+import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -40,7 +41,10 @@ import geneviz
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = [
+    'sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',
+    'matplotlib.sphinxext.plot_directive', 'sphinx.ext.githubpages'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -106,12 +110,12 @@ pygments_style = 'sphinx'
 # documents.
 #keep_warnings = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = "sphinx_rtd_theme"
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -190,7 +194,6 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'genevizdoc'
 
-
 # -- Options for LaTeX output ------------------------------------------
 
 latex_elements = {
@@ -207,11 +210,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
-latex_documents = [
-    ('index', 'geneviz.tex',
-     u'Geneviz Documentation',
-     u'Julian de Ruiter', 'manual'),
-]
+latex_documents = [('index', 'geneviz.tex', u'Geneviz Documentation',
+                    u'Julian de Ruiter', 'manual'), ]
 
 # The name of an image file (relative to this directory) to place at
 # the top of the title page.
@@ -233,20 +233,15 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_domain_indices = True
 
-
 # -- Options for manual page output ------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'geneviz',
-     u'Geneviz Documentation',
-     [u'Julian de Ruiter'], 1)
-]
+man_pages = [('index', 'geneviz', u'Geneviz Documentation',
+              [u'Julian de Ruiter'], 1)]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
-
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -254,12 +249,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'geneviz',
-     u'Geneviz Documentation',
-     u'Julian de Ruiter',
-     'geneviz',
-     'One line description of project.',
-     'Miscellaneous'),
+    ('index', 'geneviz', u'Geneviz Documentation', u'Julian de Ruiter',
+     'geneviz', 'One line description of project.', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
