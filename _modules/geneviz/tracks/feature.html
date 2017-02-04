@@ -86,6 +86,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
 </ul>
 
             
@@ -470,82 +472,35 @@
         <span class="k">return</span> <span class="n">dbox</span></div>
 
 
-<span class="k">class</span> <span class="nc">RugTrack</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Track that plots density ticks for features.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">height</span>
-
-    <span class="k">def</span> <span class="nf">_preprocess_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
-        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s1">&#39;chromosome&#39;</span><span class="p">,</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="s1">&#39;strand&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">hue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="n">palette</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                    <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">palette</span><span class="p">)))</span>
-            <span class="n">plot_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plot_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
-
-        <span class="k">return</span> <span class="n">plot_data</span>
-
-    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
-            <span class="s1">&#39;chromosome == {!r} and position &gt; {} and position &lt; {}&#39;</span>
-            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">region</span><span class="p">))</span>  <span class="c1"># yapf: disable</span>
-
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-
-
-<span class="n">BoundingBox</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;BoundingBox&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">])</span>
-
-
-<span class="k">def</span> <span class="nf">pack_ffdh</span><span class="p">(</span><span class="n">bounding_boxes</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the First-Fit Decreasing Height algorithm.</span>
-
-<span class="sd">    See http://cgi.csc.liv.ac.uk/~epa/surveyhtml.html for a description</span>
-<span class="sd">    of the algorithm and other options for packing algorithms.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Sort boxes by decreasing height and size.</span>
-    <span class="n">bounding_boxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-        <span class="n">bounding_boxes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">box</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">))</span>
-    <span class="n">bounding_boxes</span> <span class="o">=</span> <span class="n">bounding_boxes</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="n">levels</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">level_heights</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">bounding_boxes</span><span class="p">:</span>
-        <span class="n">placed</span> <span class="o">=</span> <span class="bp">False</span>
-
-        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="o">.</span><span class="n">overlaps</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">):</span>
-                <span class="n">level</span><span class="o">.</span><span class="n">addi</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
-                <span class="n">placed</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="k">break</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">placed</span><span class="p">:</span>
-            <span class="n">new_level</span> <span class="o">=</span> <span class="n">IntervalTree</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">box</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">box</span><span class="p">)])</span>
-            <span class="n">levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_level</span><span class="p">)</span>
-            <span class="n">level_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
-
-    <span class="n">levels_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">interval</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">level</span><span class="p">]</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">levels_list</span><span class="p">,</span> <span class="n">level_heights</span>
-
-
 <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
           <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Stacks features in data frame.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Stacks features in given dataframe using the FFDH algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : pandas.DataFrame</span>
+<span class="sd">        DataFrame containing the features to be stacked.</span>
+<span class="sd">    group : str</span>
+<span class="sd">        Name of categorical column used to group features.</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Name of categorical column containing feature labels.</span>
+<span class="sd">    label_func : Function</span>
+<span class="sd">        Function that is used to draw feature labels. This is used to assess</span>
+<span class="sd">        the size of each label in data coordinates, which is required when</span>
+<span class="sd">        accounting for the label sizes when stacking features.</span>
+<span class="sd">    ax : matplotlib.Axes</span>
+<span class="sd">        Axes on which feature labels will be drawn. Also used to assess</span>
+<span class="sd">        feature label size.</span>
+<span class="sd">    spacing : float</span>
+<span class="sd">        Amount of vertical spacing to use between features.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        Annotated version of the input dataframe, containing an extra</span>
+<span class="sd">        column &#39;y&#39; that denotes the y-offset assigned to each feature.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: Refactor out label function? (Not a core feature of stack).</span>
 
@@ -576,7 +531,7 @@
     <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">_augment_with_labels</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_func</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
 
-    <span class="n">levels</span><span class="p">,</span> <span class="n">level_heights</span> <span class="o">=</span> <span class="n">pack_ffdh</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+    <span class="n">levels</span><span class="p">,</span> <span class="n">level_heights</span> <span class="o">=</span> <span class="n">_pack_ffdh</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
 
     <span class="n">level_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">level_heights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">level_heights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">level_offsets</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">level_offsets</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span>
@@ -592,9 +547,61 @@
     <span class="k">return</span> <span class="n">heights</span>
 
 
+<span class="k">def</span> <span class="nf">_pack_ffdh</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the First-Fit Decreasing Height packing algorithm.</span>
+
+<span class="sd">    Packs objects into multiple levels, whilst trying to minimize the total</span>
+<span class="sd">    used height. Uses a greedy approach that sorts objects by decreasing height,</span>
+<span class="sd">    and then packs them accordingly.</span>
+
+<span class="sd">    See http://cgi.csc.liv.ac.uk/~epa/surveyhtml.html for a description</span>
+<span class="sd">    of the algorithm and other options for packing algorithms.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objects : List[Any]</span>
+<span class="sd">        Objects to pack. Any object can be used, as long as the objects have</span>
+<span class="sd">        &#39;height&#39;, &#39;start&#39; and &#39;end&#39; properties, which define the height</span>
+<span class="sd">        and range of the object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[List[List[Any]], List[int]]</span>
+<span class="sd">        Returns a tuple of level assignments (containing the objects) assigned</span>
+<span class="sd">        to each level and a list containing the heights of each level.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sort boxes by decreasing height and size.</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">objects</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">obj</span><span class="p">:</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">obj</span><span class="o">.</span><span class="n">start</span><span class="p">))</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">objects</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">levels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">level_heights</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="o">.</span><span class="n">overlaps</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">end</span><span class="p">):</span>
+                <span class="n">level</span><span class="o">.</span><span class="n">addi</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+                <span class="n">placed</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">placed</span><span class="p">:</span>
+            <span class="n">new_level</span> <span class="o">=</span> <span class="n">IntervalTree</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="n">obj</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">obj</span><span class="p">)])</span>
+            <span class="n">levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_level</span><span class="p">)</span>
+            <span class="n">level_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+    <span class="n">levels_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">interval</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">level</span><span class="p">]</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">levels_list</span><span class="p">,</span> <span class="n">level_heights</span>
+
+
 <span class="k">def</span> <span class="nf">_augment_with_labels</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_func</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
     <span class="c1"># Augment positions.</span>
-    <span class="n">anchor_col</span> <span class="o">=</span> <span class="s1">&#39;end&#39;</span> <span class="k">if</span> <span class="n">reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;start&#39;</span>
+    <span class="n">anchor_col</span> <span class="o">=</span> <span class="s1">&#39;end&#39;</span> <span class="k">if</span> <span class="n">_reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;start&#39;</span>
 
     <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">label_func</span><span class="p">(</span>
@@ -605,10 +612,105 @@
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">anchor_col</span><span class="p">:</span> <span class="n">positions</span><span class="p">})</span>
 
 
-<span class="k">def</span> <span class="nf">reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_reversed_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checks if x-axis is reversed.&quot;&quot;&quot;</span>
     <span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RugTrack"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.RugTrack">[docs]</a><span class="k">class</span> <span class="nc">RugTrack</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Track that plots density ticks for features.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : pandas.Dataframe</span>
+<span class="sd">        Dataset for plotting. Each row in the DataFrame is expected to</span>
+<span class="sd">        correspond with a single feature. The DataFrame should have the</span>
+<span class="sd">        following columns: seqname, position, strand; which together</span>
+<span class="sd">        specify the location and orientation of the corresponding feature.</span>
+<span class="sd">    hue : str</span>
+<span class="sd">        Column (categorical) that should be used to determine the color</span>
+<span class="sd">        of a given feature.</span>
+<span class="sd">    hue_order : List[str]</span>
+<span class="sd">        Order to plot the categorical hue levels in, otherwise the levels</span>
+<span class="sd">        are inferred from the data objects.</span>
+<span class="sd">    palette : List[Union[str, Tuple[float, float, float]]]</span>
+<span class="sd">        Colors to use for the different levels of the hue variable.</span>
+<span class="sd">        Should be specified as a list of colors (strs) or a list of</span>
+<span class="sd">        tuples with RGB values (similar to Seaborn color palettes).</span>
+<span class="sd">    height : float</span>
+<span class="sd">        The height of the track.</span>
+<span class="sd">    line_kws : dict[str, Any]</span>
+<span class="sd">        Dict of keyword arguments to pass to LineCollection when drawing</span>
+<span class="sd">        the ticks. Used to specify modify the aesthetics of the ticks.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">height</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hue</span> <span class="o">=</span> <span class="n">hue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color_map</span> <span class="o">=</span> <span class="n">build_colormap</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">hue_order</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line_kws</span> <span class="o">=</span> <span class="n">line_kws</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="RugTrack.get_height"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.RugTrack.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the height of the track.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        region : Tuple[str, int, int]</span>
+<span class="sd">            The genomic region that will be drawn. Specified as a tuple of</span>
+<span class="sd">            (chromosome, start, end).</span>
+<span class="sd">        ax : matplotlib.Axes</span>
+<span class="sd">            Axis that the track will be drawn on.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        height : int</span>
+<span class="sd">            Height of the track.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span></div>
+
+<div class="viewcode-block" id="RugTrack.draw"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.RugTrack.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draws the track on the given axis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        region : Tuple[str, int, int]</span>
+<span class="sd">            Genomic region to draw.</span>
+<span class="sd">        ax : matplotlib.Axes</span>
+<span class="sd">            Axis to draw track on.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="s1">&#39;chromosome == {!r} and position &gt; {} and position &lt; {}&#39;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">region</span><span class="p">))</span>  <span class="c1"># yapf: disable</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">hue</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hue</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_draw_lines</span><span class="p">(</span><span class="n">grp</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_color_map</span><span class="p">[</span><span class="n">hue</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_draw_lines</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_color_map</span><span class="p">[</span><span class="n">hue</span><span class="p">])</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_draw_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">(((</span><span class="n">tup</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">tup</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">itertuples</span><span class="p">())</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_line_kws</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

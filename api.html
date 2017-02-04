@@ -86,15 +86,16 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-plot-tracks">geneviz.tracks.plot_tracks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-track">geneviz.tracks.Track</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-dummytrack">geneviz.tracks.DummyTrack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-featuretrack">geneviz.tracks.FeatureTrack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-biomarttrack">geneviz.tracks.BiomartTrack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#geneviz-tracks-gtftrack">geneviz.tracks.GtfTrack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#base-tracks">Base tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-tracks">Feature tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gene-tracks">Gene tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ngs-tracks">NGS tracks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -141,8 +142,8 @@
             
   <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="geneviz-tracks-plot-tracks">
-<h2>geneviz.tracks.plot_tracks<a class="headerlink" href="#geneviz-tracks-plot-tracks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="geneviz.tracks.plot_tracks">
 <code class="descclassname">geneviz.tracks.</code><code class="descname">plot_tracks</code><span class="sig-paren">(</span><em>tracks</em>, <em>region</em>, <em>figsize=None</em>, <em>height_ratios=None</em>, <em>tick_top=False</em>, <em>padding=(0</em>, <em>0)</em>, <em>reverse=False</em>, <em>despine=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#plot_tracks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.plot_tracks" title="Permalink to this definition">¶</a></dt>
@@ -176,8 +177,8 @@ on the reverse strand from left to right.</li>
 </dd></dl>
 
 </div>
-<div class="section" id="geneviz-tracks-track">
-<h2>geneviz.tracks.Track<a class="headerlink" href="#geneviz-tracks-track" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="base-tracks">
+<h2>Base tracks<a class="headerlink" href="#base-tracks" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="geneviz.tracks.Track">
 <em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">Track</code><a class="reference internal" href="_modules/geneviz/tracks/base.html#Track"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.Track" title="Permalink to this definition">¶</a></dt>
@@ -235,9 +236,6 @@ as the space required to draw labels etc.).</li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="geneviz-tracks-dummytrack">
-<h2>geneviz.tracks.DummyTrack<a class="headerlink" href="#geneviz-tracks-dummytrack" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="geneviz.tracks.DummyTrack">
 <em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">DummyTrack</code><span class="sig-paren">(</span><em>height=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/base.html#DummyTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.DummyTrack" title="Permalink to this definition">¶</a></dt>
@@ -299,8 +297,8 @@ manually at a later time point.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="geneviz-tracks-featuretrack">
-<h2>geneviz.tracks.FeatureTrack<a class="headerlink" href="#geneviz-tracks-featuretrack" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="feature-tracks">
+<h2>Feature tracks<a class="headerlink" href="#feature-tracks" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="geneviz.tracks.FeatureTrack">
 <em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">FeatureTrack</code><span class="sig-paren">(</span><em>data</em>, <em>group=None</em>, <em>label=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>strand_junctions=False</em>, <em>height=1.0</em>, <em>spacing=0.05</em>, <em>color='dimgrey'</em>, <em>patch_kws=None</em>, <em>line_kws=None</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#FeatureTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.FeatureTrack" title="Permalink to this definition">¶</a></dt>
@@ -427,9 +425,82 @@ rather than start/end columns.</li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="geneviz.tracks.RugTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">RugTrack</code><span class="sig-paren">(</span><em>data</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>height=1.0</em>, <em>line_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#RugTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.RugTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Track that plots density ticks for features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>pandas.Dataframe</em>) &#8211; Dataset for plotting. Each row in the DataFrame is expected to
+correspond with a single feature. The DataFrame should have the
+following columns: seqname, position, strand; which together
+specify the location and orientation of the corresponding feature.</li>
+<li><strong>hue</strong> (<em>str</em>) &#8211; Column (categorical) that should be used to determine the color
+of a given feature.</li>
+<li><strong>hue_order</strong> (<em>List[str]</em>) &#8211; Order to plot the categorical hue levels in, otherwise the levels
+are inferred from the data objects.</li>
+<li><strong>palette</strong> (<em>List[Union[str, Tuple[float, float, float]]]</em>) &#8211; Colors to use for the different levels of the hue variable.
+Should be specified as a list of colors (strs) or a list of
+tuples with RGB values (similar to Seaborn color palettes).</li>
+<li><strong>height</strong> (<em>float</em>) &#8211; The height of the track.</li>
+<li><strong>line_kws</strong> (<em>dict[str, Any]</em>) &#8211; Dict of keyword arguments to pass to LineCollection when drawing
+the ticks. Used to specify modify the aesthetics of the ticks.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="geneviz.tracks.RugTrack.draw">
+<code class="descname">draw</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#RugTrack.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.RugTrack.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the track on the given axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; Genomic region to draw.</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis to draw track on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="geneviz.tracks.RugTrack.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><em>region</em>, <em>ax</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/feature.html#RugTrack.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.RugTrack.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the height of the track.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>region</strong> (<em>Tuple[str, int, int]</em>) &#8211; The genomic region that will be drawn. Specified as a tuple of
+(chromosome, start, end).</li>
+<li><strong>ax</strong> (<em>matplotlib.Axes</em>) &#8211; Axis that the track will be drawn on.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>height</strong> &#8211; Height of the track.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="geneviz-tracks-biomarttrack">
-<h2>geneviz.tracks.BiomartTrack<a class="headerlink" href="#geneviz-tracks-biomarttrack" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="gene-tracks">
+<h2>Gene tracks<a class="headerlink" href="#gene-tracks" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="geneviz.tracks.BiomartTrack">
 <em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">BiomartTrack</code><span class="sig-paren">(</span><em>host='http://www.ensembl.org'</em>, <em>mart='ENSEMBL_MART_ENSEMBL'</em>, <em>dataset='hsapiens_gene_ensembl'</em>, <em>gene_id='gene_id'</em>, <em>transcript_id='transcript_id'</em>, <em>collapse=None</em>, <em>filter=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>height=0.9</em>, <em>spacing=0.05</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/gene.html#BiomartTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.BiomartTrack" title="Permalink to this definition">¶</a></dt>
@@ -454,12 +525,17 @@ which is used internally to draw transcripts/genes.</li>
 </table>
 </dd></dl>
 
-</div>
-<div class="section" id="geneviz-tracks-gtftrack">
-<h2>geneviz.tracks.GtfTrack<a class="headerlink" href="#geneviz-tracks-gtftrack" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="geneviz.tracks.GtfTrack">
 <em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">GtfTrack</code><span class="sig-paren">(</span><em>gtf_path</em>, <em>gene_id='gene_id'</em>, <em>transcript_id='transcript_id'</em>, <em>collapse=None</em>, <em>filter=None</em>, <em>hue=None</em>, <em>hue_order=None</em>, <em>palette=None</em>, <em>height=0.9</em>, <em>spacing=0.05</em>, <em>label_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/gene.html#GtfTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.GtfTrack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="ngs-tracks">
+<h2>NGS tracks<a class="headerlink" href="#ngs-tracks" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="geneviz.tracks.SpliceTrack">
+<em class="property">class </em><code class="descclassname">geneviz.tracks.</code><code class="descname">SpliceTrack</code><span class="sig-paren">(</span><em>data</em>, <em>height=1</em>, <em>color=None</em>, <em>patch_kws=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geneviz/tracks/ngs.html#SpliceTrack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geneviz.tracks.SpliceTrack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

@@ -85,18 +85,23 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Geneviz</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#feature-track">Feature track</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#individual-features">Individual features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#composite-features">Composite features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-features">Basic features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-tracks">Available tracks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#feature-track">Feature track</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#individual-features">Individual features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#composite-features">Composite features</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#gene-tracks">Gene tracks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#combining-tracks">Combining tracks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gene-tracks">Gene tracks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ngs-tracks">NGS tracks</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -143,33 +148,86 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basic-features">
+<h2>Basic features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
+<p>Similar to many genome browsers, Geneviz displays individual types of genomic
+features or data as separate tracks. Within Geneviz, each track derives from
+the class <strong>Track</strong>, which defines a common interface for each track. Many
+basic tracks take their data from a pandas DataFrame, although some more
+specialized tracks may query their data directly from different sources.</p>
+<p>Tracks are drawn using the function <strong>plot_tracks</strong>, which takes a list of
+tracks and the genomic region that should be drawn. The function ensures
+that only the required region is plotted and that data from the different
+tracks are aligned properly. Regions are defined by a chromosome name and
+a start/end position, thereby restricting a plot to a genomic locus on a
+single chromosome. Geneviz does not yet support plotting multiple chromosomes
+in a single plot.</p>
+<p>An example plot is shown below, in which we draw three genomic features
+(representing insertions) along side the mouse gene annotation. We first create
+a FeatureTrack, which provides functionality for drawing simple
+stranded/unstranded genomic features and is responsible for drawing
+our insertion features. We provide this track with a Dataframe containing the
+locations of the three features. Second, we build a gene track which is
+responsible for drawing the gene features. In this case we use a biomart track,
+which queries gene definitions from Ensembl using biomart.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Build the feature track.</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
+    <span class="p">[(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">182448297</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">182448100</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">182419592</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;chromosome&#39;</span><span class="p">,</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="s1">&#39;strand&#39;</span><span class="p">])</span>
+
+<span class="n">feature_track</span> <span class="o">=</span> <span class="n">FeatureTrack</span><span class="o">.</span><span class="n">from_position</span><span class="p">(</span>
+    <span class="n">features</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;strand&#39;</span><span class="p">)</span>
+
+<span class="c1"># Build the gene track.</span>
+<span class="n">gene_track</span> <span class="o">=</span> <span class="n">BiomartTrack</span><span class="p">(</span>
+    <span class="n">collapse</span><span class="o">=</span><span class="s1">&#39;transcript&#39;</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;mmusculus_gene_ensembl&#39;</span><span class="p">,</span>
+    <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_name&#39;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Plot the tracks together.</span>
+<span class="n">plot_tracks</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">feature_track</span><span class="p">,</span> <span class="n">gene_track</span><span class="p">],</span>
+    <span class="n">region</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">182399172</span><span class="p">,</span> <span class="mi">182462432</span><span class="p">),</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+    <span class="n">despine</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Altogether, this gives us the following result:</p>
+<p>(<a class="reference external" href="./examples/insertions.py">Source code</a>, <a class="reference external" href="./examples/insertions.png">png</a>, <a class="reference external" href="./examples/insertions.hires.png">hires.png</a>, <a class="reference external" href="./examples/insertions.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/insertions.png" src="_images/insertions.png" />
+</div>
+<p>Hopefully this gives a general idea of how to create genomic plots using
+Geneviz. See below for an overview of the different types of tracks that
+are currently aviable.</p>
+</div>
+<div class="section" id="available-tracks">
+<h2>Available tracks<a class="headerlink" href="#available-tracks" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="feature-track">
-<h2>Feature track<a class="headerlink" href="#feature-track" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="overview">
-<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<h3>Feature track<a class="headerlink" href="#feature-track" title="Permalink to this headline">¶</a></h3>
 <p>The feature track is a multi-purpose track that provides functionality for
 drawing (stranded) features along the genome. Features can consist of one
 or multiple genomic ranges, which can optionally be grouped into composite
 elements if needed. As such, this track can represent anything from simple
 features such as read alignments, CpG islands or even genes and gene
 transcripts.</p>
-<p>A feature track is instantiated using a dataframe that describes the different
+<p>A feature track is using from a dataframe that describes the different
 features. In this dataframe, each row represents a single feature. The
-dataframe is must contain at least the four columns &#8216;chromosome&#8217;,
-&#8216;start&#8217;, &#8216;end&#8217; and strand; which together describe the position and orientation
-of each feature. Optionally, strand may be specified as None
-or np.nan, in which case the corresponding feature is considered to be
-unstranded.</p>
+dataframe must contain the four columns &#8216;chromosome&#8217;, &#8216;start&#8217;, &#8216;end&#8217; and
+&#8216;strand&#8217;; which together describe the position and orientation
+of these features. The strand column may contain null values (np.nan or None),
+indicating that the corresponding feature is unstranded.</p>
 <p>Additional columns may be provided to control different aesthetics of the
 drawn features. For example, when combined with the &#8216;hue&#8217; argument, categorical
 columns can be used to determine the color of individual features. Similarly,
 the &#8216;label&#8217; argument can be used to indicate which column should be used to
-add labels to the features, which can be useful for adding feature
-names/annotations.</p>
-</div>
+add labels to the features.</p>
 <div class="section" id="individual-features">
-<h3>Individual features<a class="headerlink" href="#individual-features" title="Permalink to this headline">¶</a></h3>
-<p>A simple example for drawing individual (ungrouped) features is shown below:</p>
+<h4>Individual features<a class="headerlink" href="#individual-features" title="Permalink to this headline">¶</a></h4>
+<p>A simple example for drawing single features is shown below:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Example features.</span>
 <span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">([</span>
         <span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
@@ -213,7 +271,7 @@ arguments.</p>
 <p>TODO: example.</p>
 </div>
 <div class="section" id="composite-features">
-<h3>Composite features<a class="headerlink" href="#composite-features" title="Permalink to this headline">¶</a></h3>
+<h4>Composite features<a class="headerlink" href="#composite-features" title="Permalink to this headline">¶</a></h4>
 <p>Complex genomic features typically consist of several features spanning
 different genomic ranges. For example, genes typically consist of
 several exons, which are together form gene transcript(s). To represent such
@@ -245,7 +303,7 @@ that angle downwards indicate groups on the reverse strand:</p>
 </div>
 </div>
 <div class="section" id="gene-tracks">
-<h2>Gene tracks<a class="headerlink" href="#gene-tracks" title="Permalink to this headline">¶</a></h2>
+<h3>Gene tracks<a class="headerlink" href="#gene-tracks" title="Permalink to this headline">¶</a></h3>
 <p>Specialized tracks are provided for drawing gene/transcripts. Internally,
 these tracks use the FeatureTrack for the actual drawing, but provide
 additional functionality for querying gene/transcript definitions and for
@@ -300,8 +358,10 @@ collapsing gene transcripts.</p>
 <img alt="_images/genes_biomart_gene.png" src="_images/genes_biomart_gene.png" />
 </div>
 </div>
-<div class="section" id="combining-tracks">
-<h2>Combining tracks<a class="headerlink" href="#combining-tracks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ngs-tracks">
+<h3>NGS tracks<a class="headerlink" href="#ngs-tracks" title="Permalink to this headline">¶</a></h3>
+<p>TODO</p>
+</div>
 </div>
 </div>
 

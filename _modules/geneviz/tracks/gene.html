@@ -86,6 +86,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
 </ul>
 
             
@@ -252,6 +254,37 @@
     <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
         <span class="n">track</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_track</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">track</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GeneTrack</span><span class="p">(</span><span class="n">_BaseGeneTrack</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">data</span><span class="p">,</span>
+                 <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">,</span>
+                 <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
+                 <span class="n">collapse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
+            <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
+            <span class="n">collapse</span><span class="o">=</span><span class="n">collapse</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
+            <span class="n">hue</span><span class="o">=</span><span class="n">hue</span><span class="p">,</span>
+            <span class="n">hue_order</span><span class="o">=</span><span class="n">hue_order</span><span class="p">,</span>
+            <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
+            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_fetch_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="GtfTrack"><a class="viewcode-back" href="../../../api.html#geneviz.tracks.GtfTrack">[docs]</a><span class="k">class</span> <span class="nc">GtfTrack</span><span class="p">(</span><span class="n">_BaseGeneTrack</span><span class="p">):</span>

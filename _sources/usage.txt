@@ -2,11 +2,71 @@
 Usage
 =====
 
+Basic features
+==============
+
+Similar to many genome browsers, Geneviz displays individual types of genomic
+features or data as separate tracks. Within Geneviz, each track derives from
+the class **Track**, which defines a common interface for each track. Many
+basic tracks take their data from a pandas DataFrame, although some more
+specialized tracks may query their data directly from different sources.
+
+Tracks are drawn using the function **plot_tracks**, which takes a list of
+tracks and the genomic region that should be drawn. The function ensures
+that only the required region is plotted and that data from the different
+tracks are aligned properly. Regions are defined by a chromosome name and
+a start/end position, thereby restricting a plot to a genomic locus on a
+single chromosome. Geneviz does not yet support plotting multiple chromosomes
+in a single plot.
+
+An example plot is shown below, in which we draw three genomic features
+(representing insertions) along side the mouse gene annotation. We first create
+a FeatureTrack, which provides functionality for drawing simple
+stranded/unstranded genomic features and is responsible for drawing
+our insertion features. We provide this track with a Dataframe containing the
+locations of the three features. Second, we build a gene track which is
+responsible for drawing the gene features. In this case we use a biomart track,
+which queries gene definitions from Ensembl using biomart.
+
+.. code-block:: python
+
+    # Build the feature track.
+    features = pd.DataFrame.from_records(
+        [('1', 182448297, 1),
+        ('1', 182448100, 1),
+        ('1', 182419592, -1)],
+        columns=['chromosome', 'position', 'strand'])
+
+    feature_track = FeatureTrack.from_position(
+        features, width=3500, height=0.5, hue='strand')
+
+    # Build the gene track.
+    gene_track = BiomartTrack(
+        collapse='transcript',
+        dataset='mmusculus_gene_ensembl',
+        gene_id='gene_name',
+        height=0.5)
+
+    # Plot the tracks together.
+    plot_tracks(
+        [feature_track, gene_track],
+        region=('1', 182399172, 182462432),
+        figsize=(10, None),
+        despine=True)
+
+Altogether, this gives us the following result:
+
+.. plot:: examples/insertions.py
+
+Hopefully this gives a general idea of how to create genomic plots using
+Geneviz. See below for an overview of the different types of tracks that
+are currently aviable.
+
+Available tracks
+================
+
 Feature track
 -------------
-
-Overview
-~~~~~~~~
 
 The feature track is a multi-purpose track that provides functionality for
 drawing (stranded) features along the genome. Features can consist of one
@@ -15,25 +75,23 @@ elements if needed. As such, this track can represent anything from simple
 features such as read alignments, CpG islands or even genes and gene
 transcripts.
 
-A feature track is instantiated using a dataframe that describes the different
+A feature track is using from a dataframe that describes the different
 features. In this dataframe, each row represents a single feature. The
-dataframe is must contain at least the four columns 'chromosome',
-'start', 'end' and strand; which together describe the position and orientation
-of each feature. Optionally, strand may be specified as None
-or np.nan, in which case the corresponding feature is considered to be
-unstranded.
+dataframe must contain the four columns 'chromosome', 'start', 'end' and
+'strand'; which together describe the position and orientation
+of these features. The strand column may contain null values (np.nan or None),
+indicating that the corresponding feature is unstranded.
 
 Additional columns may be provided to control different aesthetics of the
 drawn features. For example, when combined with the 'hue' argument, categorical
 columns can be used to determine the color of individual features. Similarly,
 the 'label' argument can be used to indicate which column should be used to
-add labels to the features, which can be useful for adding feature
-names/annotations.
+add labels to the features.
 
 Individual features
 ~~~~~~~~~~~~~~~~~~~
 
-A simple example for drawing individual (ungrouped) features is shown below:
+A simple example for drawing single features is shown below:
 
 .. code-block:: python
 
@@ -164,6 +222,7 @@ collapsing gene transcripts.
 
 .. plot:: examples/genes_biomart_gene.py
 
+NGS tracks
+----------
 
-Combining tracks
-----------------
+TODO
