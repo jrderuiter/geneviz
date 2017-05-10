@@ -6,4 +6,4 @@ History
 ------------------
 
 * Initial version with basic feature, gene and NGS tracks.
-* Version, used for plots in SB and IM-Fusion manuscripts.
+* Used for plots in SB and IM-Fusion manuscripts.
