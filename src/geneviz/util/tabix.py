@@ -8,7 +8,7 @@ from typing import Any, Callable, Iterable, List
 
 import pysam
 
-GTF_PROXY = pysam.ctabixproxies.GTFProxy
+# GTF_PROXY = pysam.ctabixproxies.GTFProxy
 
 
 class TabixIterator(object):

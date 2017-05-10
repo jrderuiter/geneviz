@@ -118,10 +118,14 @@ class FeatureTrack(Track):
         self._strand_junctions = strand_junctions
 
         # Detailed style kws for different plot aspects.
-        default_patch_kws = {'facecolor': color, 'edgecolor': color, 'lw': 1}
+        default_patch_kws = {
+            'facecolor': color,
+            'edgecolor': color,
+            'linewidth': 1
+        }
         self._patch_kws = toolz.merge(default_patch_kws, patch_kws or {})
 
-        default_line_kws = {'color': color, 'lw': 1.5}
+        default_line_kws = {'color': color, 'linewidth': 1.5}
         self._line_kws = toolz.merge(default_line_kws, line_kws or {})
 
         self._label_kws = label_kws or {}
@@ -244,7 +248,7 @@ class FeatureTrack(Track):
                     self._draw_label_single(tup, ax)
 
         # Set ylim and style axes.
-        ax.set_ylim(0, stacked['y'].max() + self._height)
+        ax.set_ylim(0, stacked['y'].max() + self._height + self._spacing)
         ax.set_yticks([])
 
     def _feature_patch(self, tup):
@@ -567,12 +571,12 @@ class RugTrack(Track):
             for hue, grp in data.groupby(self._hue):
                 self._draw_lines(grp, ax, color=self._color_map[hue])
         else:
-            self._draw_lines(data, ax, color=self._color_map[hue])
+            self._draw_lines(data, ax)
 
         ax.yaxis.set_visible(False)
 
     def _draw_lines(self, data, ax, color=None):
-        segments = (((tup.position, 0), (tup.position, self._height))
+        segments = (((tup.position, 0), (tup.position, 1))
                     for tup in data.itertuples())
         lines = LineCollection(segments, color=color, **self._line_kws)
         ax.add_collection(lines)

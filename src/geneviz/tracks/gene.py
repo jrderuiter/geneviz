@@ -32,7 +32,9 @@ class _BaseGeneTrack(Track):
                  palette=None,
                  height=0.9,
                  spacing=0.05,
-                 label_kws=None):
+                 label_kws=None,
+                 patch_kws=None,
+                 line_kws=None):
         super().__init__()
 
         self._gene_id = gene_id
@@ -58,7 +60,9 @@ class _BaseGeneTrack(Track):
             'label': group,
             'group': group,
             'strand_junctions': True,
-            'label_kws': label_kws
+            'label_kws': label_kws,
+            'patch_kws': patch_kws,
+            'line_kws': line_kws
         }
 
     def get_height(self, region, ax):
@@ -133,7 +137,9 @@ class GeneTrack(_BaseGeneTrack):
                  palette=None,
                  height=0.9,
                  spacing=0.05,
-                 label_kws=None):
+                 label_kws=None,
+                 patch_kws=None,
+                 line_kws=None):
 
         super().__init__(
             gene_id=gene_id,
@@ -145,7 +151,9 @@ class GeneTrack(_BaseGeneTrack):
             palette=palette,
             height=height,
             spacing=spacing,
-            label_kws=label_kws)
+            label_kws=label_kws,
+            patch_kws=patch_kws,
+            line_kws=line_kws)
         self._data = data
 
     def _fetch_data(self, region):
@@ -164,7 +172,9 @@ class GtfTrack(_BaseGeneTrack):
                  palette=None,
                  height=0.9,
                  spacing=0.05,
-                 label_kws=None):
+                 label_kws=None,
+                 patch_kws=None,
+                 line_kws=None):
         super().__init__(
             gene_id=gene_id,
             transcript_id=transcript_id,
@@ -175,7 +185,9 @@ class GtfTrack(_BaseGeneTrack):
             palette=palette,
             height=height,
             spacing=spacing,
-            label_kws=label_kws)
+            label_kws=label_kws,
+            patch_kws=patch_kws,
+            line_kws=line_kws)
         self._gtf_path = gtf_path
 
     def _fetch_data(self, region):
@@ -235,6 +247,7 @@ class BiomartTrack(_BaseGeneTrack):
                  dataset='hsapiens_gene_ensembl',
                  gene_id='gene_id',
                  transcript_id='transcript_id',
+                 bm_gene_name='external_gene_name',
                  collapse=None,
                  filter=None,
                  hue=None,
@@ -242,7 +255,9 @@ class BiomartTrack(_BaseGeneTrack):
                  palette=None,
                  height=0.9,
                  spacing=0.05,
-                 label_kws=None):
+                 label_kws=None,
+                 patch_kws=None,
+                 line_kws=None):
         super().__init__(
             gene_id=gene_id,
             transcript_id=transcript_id,
@@ -253,7 +268,9 @@ class BiomartTrack(_BaseGeneTrack):
             palette=palette,
             height=height,
             spacing=spacing,
-            label_kws=label_kws)
+            label_kws=label_kws,
+            patch_kws=patch_kws,
+            line_kws=line_kws)
 
         if pybiomart is None:
             raise ValueError('Pybiomart must be installed to use '
@@ -262,6 +279,7 @@ class BiomartTrack(_BaseGeneTrack):
         # Fetch dataset from server.
         server = pybiomart.Server(host=host)
         self._dataset = (server.marts[mart].datasets[dataset])
+        self._bm_gene_name = bm_gene_name
 
     def _fetch_data(self, region):
         # TODO: Fetch transcript name instead of id (needs extra query).
@@ -279,14 +297,18 @@ class BiomartTrack(_BaseGeneTrack):
         transcript_ids = list(transcripts[transcripts.columns[0]])
 
         # Retrieve exons for these transcripts.
+        attrs = [
+            self._bm_gene_name, 'ensembl_gene_id', 'ensembl_transcript_id',
+            'exon_chrom_start', 'exon_chrom_end', 'strand'
+        ]
+
         data = self._dataset.query(
-            attributes=[
-                'external_gene_name', 'ensembl_gene_id',
-                'ensembl_transcript_id', 'exon_chrom_start', 'exon_chrom_end',
-                'strand'
-            ],
+            attributes=attrs,
             filters={'link_ensembl_transcript_stable_id': transcript_ids},
             use_attr_names=True)
+
+        # Work around bug in use_attr_names?
+        data.columns = attrs
 
         # Reshape data to conform to expected format.
         data = pd.DataFrame({
@@ -294,7 +316,7 @@ class BiomartTrack(_BaseGeneTrack):
             'start': data['exon_chrom_start'],
             'end': data['exon_chrom_end'],
             'strand': data['strand'],
-            'gene_name': data['external_gene_name'],
+            'gene_name': data[self._bm_gene_name],
             'gene_id': data['ensembl_gene_id'],
             'transcript_id': data['ensembl_transcript_id']
         })
