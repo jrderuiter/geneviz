@@ -48,8 +48,8 @@ clean-test: ## remove test and coverage artifacts
 	rm -f .coverage
 	rm -fr htmlcov/
 
-lint: ## check style with flake8
-	flake8 src tests
+lint: ## check style with pylint
+	pylint src/geneviz
 
 test: ## run tests quickly with the default Python
 	py.test
@@ -58,38 +58,31 @@ coverage: ## check code coverage quickly with the default Python
 	py.test --cov=geneviz --cov-report=html
 	$(BROWSER) htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
-#	rm -rf docs/api
-#	sphinx-apidoc -e -T -o docs/api src/geneviz
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-#	$(BROWSER) docs/_build/html/index.html
-
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+docs: ## generate and serve Sphinx documentation
+	sphinx-autobuild docs docs/_build
 
 release: clean ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
-
-dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
-
-conda-build: clean-pyc ## build a conda release
-	conda build ./conda -c bioconda -c jrderuiter
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
 gh-pages:
 	git checkout gh-pages
-	rm -rf build _sources _static _modules _images examples
-	git checkout develop $(GH_PAGES_SOURCES)
+	find ./* -not -path '*/\.*' -prune -exec rm -r "{}" \;
+	git checkout develop docs Makefile src AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
 	git reset HEAD
-	make docs
+	(cd docs && make html)
 	mv -fv docs/_build/html/* ./
-	rm -rf $(GH_PAGES_SOURCES) docs/_build
+	rm -rf docs Makefile src AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
+	touch .nojekyll
 	git add -A
 	git commit -m "Generated gh-pages for `git log develop -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout develop
+
+dist: clean ## builds source and wheel package
+	rm -rf build
+	python setup.py sdist bdist_wheel
+
+install: clean ## install the package to the active Python's site-packages
+	python setup.py install
