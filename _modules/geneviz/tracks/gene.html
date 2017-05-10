@@ -8,9 +8,11 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>geneviz.tracks.gene &mdash; Geneviz 0.1.0.dev0 documentation</title>
+  <title>geneviz.tracks.gene &mdash; Geneviz 0.1.0 documentation</title>
   
 
+  
+  
   
   
 
@@ -30,7 +32,10 @@
   
 
   
-    <link rel="top" title="Geneviz 0.1.0.dev0 documentation" href="../../../index.html"/>
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Geneviz 0.1.0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -40,6 +45,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -59,7 +65,7 @@
             
             
               <div class="version">
-                0.1.0.dev0
+                0.1.0
               </div>
             
           
@@ -80,8 +86,11 @@
           
             
             
-                <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Geneviz</a></li>
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Geneviz</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
@@ -100,8 +109,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../../index.html">Geneviz</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Geneviz</a>
+        
       </nav>
 
 
@@ -114,19 +125,36 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../../../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-      
-    <li>geneviz.tracks.gene</li>
+        
+      <li>geneviz.tracks.gene</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -145,30 +173,32 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pybiomart</span>
 <span class="kn">import</span> <span class="nn">toolz</span>
 
-<span class="kn">from</span> <span class="nn">geneviz.tracks.base</span> <span class="kn">import</span> <span class="n">Track</span>
-<span class="kn">from</span> <span class="nn">geneviz.util.genomic</span> <span class="kn">import</span> <span class="n">merge_intervals</span>
-<span class="kn">from</span> <span class="nn">geneviz.util.tabix</span> <span class="kn">import</span> <span class="n">GtfIterator</span>
+<span class="kn">from</span> <span class="nn">geneviz.tracks.base</span> <span class="k">import</span> <span class="n">Track</span>
+<span class="kn">from</span> <span class="nn">geneviz.util.genomic</span> <span class="k">import</span> <span class="n">merge_intervals</span>
+<span class="kn">from</span> <span class="nn">geneviz.util.tabix</span> <span class="k">import</span> <span class="n">GtfIterator</span>
 
-<span class="kn">from</span> <span class="nn">.feature</span> <span class="kn">import</span> <span class="n">FeatureTrack</span>
+<span class="kn">from</span> <span class="nn">.feature</span> <span class="k">import</span> <span class="n">FeatureTrack</span>
 
 
 <span class="k">class</span> <span class="nc">_BaseGeneTrack</span><span class="p">(</span><span class="n">Track</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">,</span>
                  <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
-                 <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">collapse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">collapse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
                  <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">patch_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_gene_id</span> <span class="o">=</span> <span class="n">gene_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transcript_id</span> <span class="o">=</span> <span class="n">transcript_id</span>
@@ -179,7 +209,7 @@
         <span class="n">collapse_group_map</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;transcript&#39;</span><span class="p">:</span> <span class="n">gene_id</span><span class="p">,</span>
             <span class="s1">&#39;gene&#39;</span><span class="p">:</span> <span class="n">gene_id</span><span class="p">,</span>
-            <span class="bp">None</span><span class="p">:</span> <span class="n">transcript_id</span>
+            <span class="kc">None</span><span class="p">:</span> <span class="n">transcript_id</span>
         <span class="p">}</span>
         <span class="n">group</span> <span class="o">=</span> <span class="n">collapse_group_map</span><span class="p">[</span><span class="n">collapse</span><span class="p">]</span>
 
@@ -192,8 +222,10 @@
             <span class="s1">&#39;spacing&#39;</span><span class="p">:</span> <span class="n">spacing</span><span class="p">,</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">,</span>
             <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">,</span>
-            <span class="s1">&#39;strand_junctions&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-            <span class="s1">&#39;label_kws&#39;</span><span class="p">:</span> <span class="n">label_kws</span>
+            <span class="s1">&#39;strand_junctions&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;label_kws&#39;</span><span class="p">:</span> <span class="n">label_kws</span><span class="p">,</span>
+            <span class="s1">&#39;patch_kws&#39;</span><span class="p">:</span> <span class="n">patch_kws</span><span class="p">,</span>
+            <span class="s1">&#39;line_kws&#39;</span><span class="p">:</span> <span class="n">line_kws</span>
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
@@ -210,14 +242,14 @@
     <span class="k">def</span> <span class="nf">_fetch_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
         <span class="n">exons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_data</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exons</span> <span class="o">=</span> <span class="n">exons</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span> <span class="o">==</span> <span class="s1">&#39;gene&#39;</span><span class="p">:</span>
             <span class="n">exons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_gene</span><span class="p">(</span><span class="n">exons</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span> <span class="o">==</span> <span class="s1">&#39;transcript&#39;</span><span class="p">:</span>
             <span class="n">exons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_transcripts</span><span class="p">(</span><span class="n">exons</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unexpected value for collapse&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">exons</span>
@@ -249,7 +281,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="p">(</span><span class="n">_collapse_grp</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">exons</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_id</span><span class="p">)),</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
         <span class="n">track</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_track</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
@@ -261,16 +293,18 @@
                  <span class="n">data</span><span class="p">,</span>
                  <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">,</span>
                  <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
-                 <span class="n">collapse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">collapse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
                  <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">patch_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
             <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
             <span class="n">collapse</span><span class="o">=</span><span class="n">collapse</span><span class="p">,</span>
@@ -280,7 +314,9 @@
             <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
-            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">)</span>
+            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">,</span>
+            <span class="n">patch_kws</span><span class="o">=</span><span class="n">patch_kws</span><span class="p">,</span>
+            <span class="n">line_kws</span><span class="o">=</span><span class="n">line_kws</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="nf">_fetch_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
@@ -292,15 +328,17 @@
                  <span class="n">gtf_path</span><span class="p">,</span>
                  <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">,</span>
                  <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
-                 <span class="n">collapse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">collapse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
                  <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">patch_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
             <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
             <span class="n">collapse</span><span class="o">=</span><span class="n">collapse</span><span class="p">,</span>
@@ -310,7 +348,9 @@
             <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
-            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">)</span>
+            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">,</span>
+            <span class="n">patch_kws</span><span class="o">=</span><span class="n">patch_kws</span><span class="p">,</span>
+            <span class="n">line_kws</span><span class="o">=</span><span class="n">line_kws</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gtf_path</span> <span class="o">=</span> <span class="n">gtf_path</span>
 
     <span class="k">def</span> <span class="nf">_fetch_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
@@ -326,10 +366,10 @@
         <span class="k">return</span> <span class="n">exons</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_records_to_exons</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">records</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_records_to_exons</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">records</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">feature</span> <span class="o">==</span> <span class="s1">&#39;exon&#39;</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">cls</span><span class="o">.</span><span class="n">_parse_exon_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_exon_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_parse_exon_record</span><span class="p">(</span><span class="n">record</span><span class="p">):</span>
@@ -370,15 +410,18 @@
                  <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;hsapiens_gene_ensembl&#39;</span><span class="p">,</span>
                  <span class="n">gene_id</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">,</span>
                  <span class="n">transcript_id</span><span class="o">=</span><span class="s1">&#39;transcript_id&#39;</span><span class="p">,</span>
-                 <span class="n">collapse</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">hue_order</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">bm_gene_name</span><span class="o">=</span><span class="s1">&#39;external_gene_name&#39;</span><span class="p">,</span>
+                 <span class="n">collapse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hue_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
                  <span class="n">spacing</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                 <span class="n">label_kws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                 <span class="n">label_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">patch_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">line_kws</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
             <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
             <span class="n">collapse</span><span class="o">=</span><span class="n">collapse</span><span class="p">,</span>
@@ -388,15 +431,18 @@
             <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
-            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">)</span>
+            <span class="n">label_kws</span><span class="o">=</span><span class="n">label_kws</span><span class="p">,</span>
+            <span class="n">patch_kws</span><span class="o">=</span><span class="n">patch_kws</span><span class="p">,</span>
+            <span class="n">line_kws</span><span class="o">=</span><span class="n">line_kws</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">pybiomart</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pybiomart</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Pybiomart must be installed to use &#39;</span>
                              <span class="s1">&#39;the BiomartGeneTrack &#39;</span><span class="p">)</span>
 
         <span class="c1"># Fetch dataset from server.</span>
         <span class="n">server</span> <span class="o">=</span> <span class="n">pybiomart</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">marts</span><span class="p">[</span><span class="n">mart</span><span class="p">]</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="n">dataset</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bm_gene_name</span> <span class="o">=</span> <span class="n">bm_gene_name</span>
 
     <span class="k">def</span> <span class="nf">_fetch_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
         <span class="c1"># TODO: Fetch transcript name instead of id (needs extra query).</span>
@@ -414,14 +460,18 @@
         <span class="n">transcript_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">transcripts</span><span class="p">[</span><span class="n">transcripts</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
 
         <span class="c1"># Retrieve exons for these transcripts.</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bm_gene_name</span><span class="p">,</span> <span class="s1">&#39;ensembl_gene_id&#39;</span><span class="p">,</span> <span class="s1">&#39;ensembl_transcript_id&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;exon_chrom_start&#39;</span><span class="p">,</span> <span class="s1">&#39;exon_chrom_end&#39;</span><span class="p">,</span> <span class="s1">&#39;strand&#39;</span>
+        <span class="p">]</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
-            <span class="n">attributes</span><span class="o">=</span><span class="p">[</span>
-                <span class="s1">&#39;external_gene_name&#39;</span><span class="p">,</span> <span class="s1">&#39;ensembl_gene_id&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;ensembl_transcript_id&#39;</span><span class="p">,</span> <span class="s1">&#39;exon_chrom_start&#39;</span><span class="p">,</span> <span class="s1">&#39;exon_chrom_end&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;strand&#39;</span>
-            <span class="p">],</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="n">attrs</span><span class="p">,</span>
             <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;link_ensembl_transcript_stable_id&#39;</span><span class="p">:</span> <span class="n">transcript_ids</span><span class="p">},</span>
-            <span class="n">use_attr_names</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">use_attr_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Work around bug in use_attr_names?</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">attrs</span>
 
         <span class="c1"># Reshape data to conform to expected format.</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
@@ -429,7 +479,7 @@
             <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;exon_chrom_start&#39;</span><span class="p">],</span>
             <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;exon_chrom_end&#39;</span><span class="p">],</span>
             <span class="s1">&#39;strand&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;strand&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;gene_name&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;external_gene_name&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;gene_name&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bm_gene_name</span><span class="p">],</span>
             <span class="s1">&#39;gene_id&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ensembl_gene_id&#39;</span><span class="p">],</span>
             <span class="s1">&#39;transcript_id&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ensembl_transcript_id&#39;</span><span class="p">]</span>
         <span class="p">})</span>
@@ -437,6 +487,9 @@
         <span class="k">return</span> <span class="n">data</span></div>
 </pre></div>
 
+           </div>
+           <div class="articleComments">
+            
            </div>
           </div>
           <footer>
@@ -468,10 +521,11 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.1.0.dev0',
+            VERSION:'0.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
