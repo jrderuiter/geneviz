@@ -14,6 +14,14 @@ REQUIREMENTS = [
     'seaborn', 'pybiomart'
 ]
 
+EXTRAS_REQUIRE = {
+    'dev': [
+        'sphinx', 'sphinx-autobuild', 'sphinx-rtd-theme', 'bumpversion',
+        'pytest>=2.7', 'pytest-mock', 'pytest-helpers-namespace', 'pytest-cov',
+        'python-coveralls'
+    ]
+}
+
 setup(
     name='geneviz',
     version='0.1.0',
@@ -26,6 +34,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     install_requires=REQUIREMENTS,
+    extras_require=EXTRAS_REQUIRE,
     license="MIT license",
     zip_safe=False,
     keywords='geneviz',

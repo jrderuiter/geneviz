@@ -65,9 +65,6 @@ release: clean ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-install: clean ## install the package to the active Python's site-packages
-	python setup.py install
-
 gh-pages:
 	git checkout gh-pages
 	find ./* -not -path '*/\.*' -prune -exec rm -r "{}" \;

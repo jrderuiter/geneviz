@@ -2,7 +2,6 @@
 Geneviz
 ===============================
 
-
 .. image:: https://img.shields.io/pypi/v/geneviz.svg
         :target: https://pypi.python.org/pypi/geneviz
 
