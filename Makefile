@@ -23,11 +23,13 @@ endef
 export PRINT_HELP_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
+GH_PAGES_SOURCES = docs src Makefile AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
+
+
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
-
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -43,46 +45,44 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '__pycache__' -exec rm -fr {} +
 
 clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
 	rm -f .coverage
 	rm -fr htmlcov/
 
-lint: ## check style with flake8
-	flake8 geneviz tests
+lint: ## check style with pylint
+	pylint src/geneviz
 
 test: ## run tests quickly with the default Python
 	py.test
-	
-
-test-all: ## run tests on every Python version with tox
-	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source geneviz py.test
-	
-		coverage report -m
-		coverage html
-		$(BROWSER) htmlcov/index.html
+	py.test --cov=geneviz --cov-report=html
+	$(BROWSER) htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/geneviz.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ geneviz
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
-
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+docs: ## generate and serve Sphinx documentation
+	sphinx-autobuild docs docs/_build
 
 release: clean ## package and upload a release
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
+install: clean ## install the package to the active Python's site-packages
+	python setup.py install
+
+gh-pages:
+	git checkout gh-pages
+	find ./* -not -path '*/\.*' -prune -exec rm -r "{}" \;
+	git checkout develop docs Makefile src AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
+	git reset HEAD
+	(cd docs && make html)
+	mv -fv docs/_build/html/* ./
+	rm -rf docs Makefile src AUTHORS.rst CONTRIBUTING.rst HISTORY.rst README.rst
+	touch .nojekyll
+	git add -A
+	git commit -m "Generated gh-pages for `git log develop -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout develop
+
 dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+	rm -rf build
+	python setup.py sdist bdist_wheel
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install

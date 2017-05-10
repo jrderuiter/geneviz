@@ -2,7 +2,8 @@
 History
 =======
 
-0.0.1 (2016-08-26)
+0.1.0 (2017-05-10)
 ------------------
 
-* First release on PyPI.
+* Initial version with basic feature, gene and NGS tracks.
+* Version, used for plots in SB and IM-Fusion manuscripts.
