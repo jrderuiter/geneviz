@@ -2,21 +2,6 @@
 Geneviz
 ===============================
 
-.. image:: https://img.shields.io/pypi/v/geneviz.svg
-        :target: https://pypi.python.org/pypi/geneviz
-
-.. image:: https://img.shields.io/travis/jrderuiter/geneviz.svg
-        :target: https://travis-ci.org/jrderuiter/geneviz
-
-.. image:: https://readthedocs.org/projects/geneviz/badge/?version=latest
-        :target: https://geneviz.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-.. image:: https://pyup.io/repos/github/jrderuiter/geneviz/shield.svg
-     :target: https://pyup.io/repos/github/jrderuiter/geneviz/
-     :alt: Updates
-
-
 A Python library for creating visualizations of genomic data.
 
 To improve interpretation, genomic data are frequently drawn together with a
