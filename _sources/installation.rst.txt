@@ -4,12 +4,28 @@
 Installation
 ============
 
+Requirements
+------------
+
+Geneviz has been tested on Python 2.7 and 3.4+.
 
 Stable release
 --------------
 
-The first stable release of Geneviz will soon be made available
-on PyPI and bioconda.
+To install geneviz, run this command in your terminal:
+
+.. code-block:: console
+
+    $ pip install https://github.com/jrderuiter/geneviz/archive/0.1.0.tar.gz
+
+This is the preferred method to install geneviz, as it will install
+the most recent stable release.
+
+If you don't have `pip`_ installed, this `Python installation guide`_ can guide
+you through the process.
+
+.. _pip: https://pip.pypa.io
+.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
 From sources
 ------------
@@ -26,7 +42,7 @@ Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/jrderuiter/geneviz/tarball/master
+    $ curl  -OL https://github.com/jrderuiter/geneviz/tarball/develop
 
 Once you have a copy of the source, you can install it with:
 
@@ -36,4 +52,4 @@ Once you have a copy of the source, you can install it with:
 
 
 .. _Github repo: https://github.com/jrderuiter/geneviz
-.. _tarball: https://github.com/jrderuiter/geneviz/tarball/master
+.. _tarball: https://github.com/jrderuiter/geneviz/tarball/develop
