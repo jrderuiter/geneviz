@@ -13,11 +13,8 @@ use these tools from a scripting language such as Python. Geneviz aims to
 bridge this gap by providing a basic framework for plotting various types
 of data along genomic coordinates in Python.
 
-Note that Geneviz is still under development. The API may therefore
+Note that Geneviz is still under active development. The API may therefore
 likely be subject to change and documentation may be incomplete.
-
-* Free software: MIT license
-* Documentation: https://jrderuiter.github.io/geneviz.
 
 Features
 --------
@@ -27,11 +24,14 @@ Features
 * Query genomic features from a variety of sources (GTF, Biomart, etc.).
 * Visualize different types of NGS data (coverage/splice junctions).
 
-Credits
----------
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+Documentation
+-------------
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+Genemaps documentation is available at
+`jrderuiter.github.io/geneviz <https://jrderuiter.github.io/geneviz/>`_.
 
+License
+-------
+
+Released under the MIT license.
